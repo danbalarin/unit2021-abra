@@ -46,6 +46,7 @@ export default class ParkingService {
 
     this.http = createServer({
       port: this.config.http.port,
+      config: this.config,
       controllers: this,
     });
   }
