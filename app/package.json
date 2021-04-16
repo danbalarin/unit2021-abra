@@ -18,7 +18,8 @@
     "next-transpile-modules": "^6.4.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "zustand": "^3.4.1"
+    "zustand": "^3.4.1",
+    "zustand-persist": "^0.3.1"
   },
   "devDependencies": {
     "@types/node": "^14.6.0",

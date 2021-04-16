@@ -3061,6 +3061,11 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
+zustand-persist@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/zustand-persist/-/zustand-persist-0.3.1.tgz#471da113301934dc0a8f4fa31945617f404215e4"
+  integrity sha512-L/feyrmpmZIjm5gKWqXXdOHS+DwqD37tn0U5byTvFWuEDe0zd8qmGxReSo8WSOBM8diPp3BAWYN5epJbhjUK9A==
+
 zustand@^3.4.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/zustand/-/zustand-3.4.1.tgz#ff1bc8480facda3a4329510b8164aa5b821be133"
