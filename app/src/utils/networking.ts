@@ -17,6 +17,17 @@ export const kyInstance = ky.create({
         }
         return req;
       },
+      // (req) => {
+      //   const { username, password } = useUserStore.getState();
+      //   console.log(username, password);
+      //   if (username && password) {
+      //     req.headers.append(
+      //       "Authorization",
+      //       `Basic ${btoa(`${username}:${password}`)}`
+      //     );
+      //   }
+      //   return req;
+      // },
       (req) => {
         req.headers.append("Content-Type", "text/plain; charset=utf-8");
         return req;
@@ -33,5 +44,14 @@ export const createGetUserDetails = async (get: GetState<UserState>) => {
       )
       .json<UserDetailResponse>();
     get().login(userDetailResponseToUser(response));
+  } catch (e) {}
+};
+
+export const createLogout = async (get: GetState<UserState>) => {
+  try {
+    const username = get().username;
+    await kyInstance
+      .post(`status/user/${username}/logout`)
+      .json<UserDetailResponse>();
   } catch (e) {}
 };

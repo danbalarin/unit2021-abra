@@ -5,31 +5,32 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { Alert, AlertIcon, AlertTitle } from "@chakra-ui/alert";
 import { Button } from "@chakra-ui/button";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
 import { Stack } from "@chakra-ui/layout";
-
-import { Card } from "components/Card";
-import { Container } from "components/Container";
-import { kyInstance } from "utils/networking";
-import useUserStore from "state/user";
-import { LoginResponse } from "models/LoginResponse";
+import { useColorMode } from "@chakra-ui/color-mode";
+import { Alert, AlertIcon, AlertTitle } from "@chakra-ui/alert";
 import { useRouter } from "next/router";
+
+import { Container } from "components/Container";
+import useUserStore from "state/user";
+import { kyInstance } from "utils/networking";
+import { LoginResponse } from "models/LoginResponse";
 
 interface Props {}
 
 function Login({}: Props): ReactElement {
   const [error, setError] = useState<Error>();
   const { replace } = useRouter();
-  const sessionId = useUserStore((s) => s.sessionId);
+  const isLogged = useUserStore((s) => s.isLogged);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
-    if (sessionId) {
+    if (isLogged) {
       replace("/");
     }
-  }, [sessionId]);
+  }, [isLogged]);
 
   const onSubmit = useCallback(async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -38,6 +39,7 @@ function Login({}: Props): ReactElement {
     body.append("username", fd.get("username")?.toString() || "");
     body.append("password", fd.get("password")?.toString() || "");
 
+    // FIXME:JSON login
     try {
       const res = await kyInstance
         .post("login-logout/login", {
@@ -55,27 +57,35 @@ function Login({}: Props): ReactElement {
 
   return (
     <Container height="100vh" justifyContent="center" alignItems="center">
-      <Card>
-        <Stack as="form" spacing="2" onSubmit={onSubmit}>
-          {error && (
-            <Alert status="error">
-              <AlertIcon />
-              <AlertTitle mr={2}>{error.message}</AlertTitle>
-            </Alert>
-          )}
-          <FormControl id="username">
-            <FormLabel>Prihlasovaci jmeno</FormLabel>
-            <Input type="username" colorScheme="orange" name="username" />
-          </FormControl>
-          <FormControl id="password">
-            <FormLabel>Heslo</FormLabel>
-            <Input type="password" colorScheme="orange" name="password" />
-          </FormControl>
-          <Button type="submit" colorScheme="orange" marginTop="2">
-            Prihlasit
-          </Button>
-        </Stack>
-      </Card>
+      <Stack
+        as="form"
+        spacing="2"
+        onSubmit={onSubmit}
+        borderRadius="lg"
+        border="1px solid"
+        borderColor={colorMode === "dark" ? "gray.700" : "gray.200"}
+        paddingX="6"
+        paddingY="8"
+      >
+        {error && (
+          <Alert status="error">
+            <AlertIcon />
+            <AlertTitle mr={2}>{error.message}</AlertTitle>
+          </Alert>
+        )}
+        <FormControl id="username">
+          <FormLabel>Prihlasovaci jmeno</FormLabel>
+          <Input type="username" name="username" />
+        </FormControl>
+        <FormControl id="password">
+          <FormLabel>Heslo</FormLabel>
+          <Input type="password" name="password" />
+        </FormControl>
+        <span />
+        <Button type="submit" colorScheme="blue" marginTop="2">
+          Prihlasit
+        </Button>
+      </Stack>
     </Container>
   );
 }

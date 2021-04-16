@@ -1,4 +1,4 @@
-import { useColorMode } from "@chakra-ui/color-mode";
+import { DarkMode, LightMode, useColorMode } from "@chakra-ui/color-mode";
 import { Box } from "@chakra-ui/layout";
 import React, { ReactElement } from "react";
 
@@ -8,19 +8,20 @@ export interface CardProps {
 
 function Card({ children }: CardProps): ReactElement {
   const { colorMode } = useColorMode();
-  const borderColor = { dark: "orange.500", light: "orange.700" };
+
+  const InvertMode = colorMode === "dark" ? LightMode : DarkMode;
+
   return (
     <Box
       borderRadius="md"
       shadow="md"
       paddingX="8"
       paddingY="6"
-      border="4px solid"
-      borderColor={borderColor[colorMode]}
-      // bg={bgColor[colorMode]}
+      boxShadow="lg"
+      backgroundColor="gray.100"
       // color={color[colorMode]}
     >
-      {children}
+      <InvertMode>{children}</InvertMode>
     </Box>
   );
 }

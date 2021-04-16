@@ -5,7 +5,6 @@ export const DarkModeSwitch = () => {
   const isDark = colorMode === "dark";
   return (
     <Switch
-      width="70px"
       paddingY="1"
       colorScheme="yellow"
       isChecked={isDark}

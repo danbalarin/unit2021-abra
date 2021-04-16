@@ -53,10 +53,10 @@ function ReservationRow({ reservation }: ReservationRowProps): ReactElement {
         {time}
       </Text>
       <Text gridArea="controls" textAlign="right">
-        <Button variant="unstyled" size="xs" onClick={onEdit}>
+        <Button variant="unstyled" size="md" onClick={onEdit}>
           <EditIcon />
         </Button>
-        <Button variant="unstyled" size="xs" onClick={onDelete}>
+        <Button variant="unstyled" size="md" onClick={onDelete}>
           <DeleteIcon />
         </Button>
       </Text>

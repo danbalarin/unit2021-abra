@@ -10,13 +10,13 @@ export interface AuthenticatedRouteProps {
 function AuthenticatedRoute({
   children: Children,
 }: AuthenticatedRouteProps): ReactElement {
-  const sessionId = useUserStore(useCallback((store) => store.sessionId, []));
+  const isLogged = useUserStore(useCallback((store) => store.isLogged, []));
   const router = useRouter();
   if (typeof document === "undefined") {
     return <Loading />;
   }
 
-  if (sessionId) {
+  if (isLogged) {
     return Children;
   }
   router.push("/login");

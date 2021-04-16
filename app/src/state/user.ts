@@ -1,5 +1,5 @@
 import createStorage from "utils/createStorage";
-import { createGetUserDetails } from "utils/networking";
+import { createGetUserDetails, createLogout } from "utils/networking";
 import create, { State } from "zustand";
 import { configurePersist } from "zustand-persist";
 
@@ -10,12 +10,22 @@ const { persist } = configurePersist({
 });
 
 interface Actions {
-  login: (user: User) => void;
+  login: (user: Partial<User>) => void;
   logout: () => void;
   setSessionId: (sessionId: string) => void;
 }
 
 export type UserState = User & State & Actions;
+
+const EMPTY_USER: User = {
+  email: "",
+  lastname: "",
+  name: "",
+  role: UserRole.JENCIST,
+  username: "",
+  sessionId: "",
+  isLogged: false,
+};
 
 const useUserStore = create<UserState>(
   persist(
@@ -23,25 +33,28 @@ const useUserStore = create<UserState>(
       key: "auth",
     },
     (set, get) => ({
-      email: "",
-      lastname: "",
-      name: "",
-      role: UserRole.JENCIST,
-      username: "",
-      sessionId: "",
-      login: (user) => set(() => ({ ...user })),
-      logout: () =>
+      ...EMPTY_USER,
+      login: async (user) => {
+        set(() => ({ ...get(), isLogged: true, ...user }));
+        // if (!get().isLogged) {
+        //   createGetUserDetails(get);
+        // }
+      },
+      logout: async () => {
+        createLogout(get);
         set(
           (state) => ({
+            ...EMPTY_USER,
             login: state.login,
             logout: state.logout,
             setSessionId: state.setSessionId,
           }),
           true
-        ),
-      setSessionId: (sessionId) => {
-        createGetUserDetails(get);
+        );
+      },
+      setSessionId: async (sessionId) => {
         set(() => ({ sessionId }));
+        await createGetUserDetails(get);
       },
     })
   )

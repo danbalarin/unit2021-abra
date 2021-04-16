@@ -1,7 +1,10 @@
 import { Button } from "@chakra-ui/button";
 import { useColorMode } from "@chakra-ui/color-mode";
+import Icon from "@chakra-ui/icon";
 import { Box, Heading } from "@chakra-ui/layout";
 import { DarkModeSwitch } from "components/DarkModeSwitch";
+import Logout from "components/Icons/Logout";
+import Person from "components/Icons/Person";
 import { useRouter } from "next/router";
 import React, { ReactElement, useCallback } from "react";
 
@@ -11,7 +14,7 @@ import useUserStore from "state/user";
 export interface AppbarProps {}
 
 function Appbar({}: AppbarProps): ReactElement {
-  const sessionId = useUserStore((s) => s.sessionId);
+  const isLogged = useUserStore((s) => s.isLogged);
   const heading = useGeneralStore((s) => s.heading);
   const { colorMode } = useColorMode();
   const { push } = useRouter();
@@ -40,12 +43,15 @@ function Appbar({}: AppbarProps): ReactElement {
       </Heading>
       <Button
         size="sm"
-        width="70px"
         variant="solid"
         colorScheme="green"
-        onClick={sessionId ? onLogout : onLogin}
+        onClick={isLogged ? onLogout : onLogin}
       >
-        {sessionId ? "Log out" : "Log in"}
+        {isLogged ? (
+          <Icon fill={colorMode === "dark" ? "black" : "white"} as={Logout} />
+        ) : (
+          <Icon fill={colorMode === "dark" ? "black" : "white"} as={Person} />
+        )}
       </Button>
     </Box>
   );
