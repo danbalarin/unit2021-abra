@@ -6,6 +6,7 @@ import ParkingPlacesBusiness from './business/parkingPlaces';
 import ReservationsBusiness from './business/reservations';
 import UsersBusiness from './business/users';
 import ReservationsController from './controllers/reservations';
+import UsersController from './controllers/user';
 import { createServer } from './http/server';
 import ParkingPlacesRepository from './repositories/inmemory/parkingPlaces'
 import ReservationsRepository from './repositories/inmemory/reservations';
@@ -31,6 +32,7 @@ export default class ParkingService {
   private parkingPlacesBusiness: ParkingPlacesBusiness;
 
   private reservationsController: ReservationsController;
+  private usersController: UsersController;
   
   constructor() {
     
@@ -81,10 +83,15 @@ export default class ParkingService {
 
     await this.reservationsBusiness.fetch();
 
+    this.usersController = new UsersController({ bc: this.usersBusiness });
     this.reservationsController = new ReservationsController({ bc: this.reservationsBusiness });
   }
 
   public getReservationsController(): ReservationsController {
     return this.reservationsController;
+  }
+
+  public getUsersController(): UsersController {
+    return this.usersController;
   }
 }

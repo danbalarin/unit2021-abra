@@ -43,4 +43,10 @@ export default class UsersBusiness {
   async list(): Promise<User[]> {
     return await this.repoUsers.findAll();
   }
+
+  async getUserByAuthToken(token: string): Promise<User> {
+    const id = await this.api.myId(token);
+    const user = await this.repoUsers.findById(id);
+    return user;
+  }
 }
