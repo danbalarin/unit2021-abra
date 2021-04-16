@@ -30,7 +30,7 @@ export default class UsersBusiness {
         id: userRaw.id,
         username: userRaw.kod,
         email: userRaw.email,
-        name: `${userRaw.jmeno} ${userRaw.prijmeni}`,
+        name: `${userRaw.jmeno} ${userRaw.prijmeni}`.trim(),
         role: userRaw.role as UserRole
       });
     })

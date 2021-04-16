@@ -25,7 +25,7 @@ export default class UsersController {
       res.locals.user = user;
       return next();
     } catch (e) {
-      console.log(e);
+      console.log(e?.isAxiosError ? e.response.statusText : e);
       return res.status(401).json({
         'error': `Your auth token is not valid. Please login again.`,
       });

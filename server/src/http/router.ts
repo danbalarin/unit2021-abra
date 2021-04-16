@@ -8,5 +8,5 @@ export function applyRoutes(app: Express, controllers: IControllers) {
 
   app.get("/reservations", validate, reservations.list.bind(reservations));
   app.put("/reservations", validate, reservations.create.bind(reservations));
-  app.delete("/reservations", validate, reservations.delete.bind(reservations));
+  app.delete("/reservations", validate, reservations.remove.bind(reservations));
 }

@@ -6,6 +6,8 @@ import ParkingPlace from '../models/parkingPlace';
 import UsersRepository from '../repositories/inmemory/users';
 import ParkingPlacesRepository from '../repositories/inmemory/parkingPlaces';
 
+export const ERR_NO_PLACE_AVAILABLE = "No places are available for this time range."; 
+
 export default class ReservationsBusiness {
 
   private api: ReservationsAPI;
@@ -28,7 +30,11 @@ export default class ReservationsBusiness {
   async fetch(): Promise<Reservation[]> {
     if (this.isFetched) return;
     
-    const reservationsRaw = await this.api.list();
+    let reservationsRaw = await this.api.list();
+    console.log(reservationsRaw);
+    reservationsRaw = reservationsRaw.filter(reservationRaw => {
+      return reservationRaw.zakazka && reservationRaw.zodpPrac;
+    });
     const reservations = await Promise.all(reservationsRaw.map(async reservationRaw => {
       const username = reservationRaw.zodpPrac.replace(/^code:/, "");
       const parkingPlaceId = Number.parseInt(reservationRaw.zakazka.replace(/^code:/, ""));
@@ -36,44 +42,89 @@ export default class ReservationsBusiness {
       const user = await this.repoUsers.findByUsername(username);
       const parkingPlace = await this.repoParkingPlaces.findById(parkingPlaceId);
 
-      return new Reservation({
+      const reservation = new Reservation({
         id: reservationRaw.id,
         parkingPlace: parkingPlace,
         user: user,
         from: new Date(reservationRaw.zahajeni),
         to: new Date(reservationRaw.dokonceni),
       });
-    }));
 
-    console.log(reservations);
+      parkingPlace.addReservation(reservation);
 
-    reservations.forEach(reservation => this.repoReservations.insert(reservation));
+      return reservation;
+    }))
+
+    reservations
+      .filter(reservation => reservation !== null)
+      .forEach(reservation => this.repoReservations.insert(reservation));
     
     this.api.list();
     this.isFetched = true;
+  }
+
+  async getById(id: number): Promise<Reservation | null> {
+    return await this.repoReservations.findById(id);
   }
 
   async list(): Promise<Reservation[]> {
     return await this.repoReservations.findAll();
   }
   
-  async create(data: ReservationPayload): Promise<Reservation> {
-    const user = await this.repoUsers.findByUsername(data.username);
+  async create({ from, to, userId }: {
+    from: Date,
+    to: Date,
+    userId?: number,
+  }): Promise<Reservation> {
+    const user = await this.repoUsers.findById(userId);
+    const parkingPlace = await this.getAvailableParkingPlace(from, to);
 
-    const id = await this.api.create(data);
-
-    const parkingPlace = await this.repoParkingPlaces.findById(data.parkingPlaceId);
+    if (parkingPlace === null) {
+      throw new Error(ERR_NO_PLACE_AVAILABLE);
+    }
 
     const reservation = new Reservation({
-      id: id,
+      id: null,
       user: user,
       parkingPlace: parkingPlace,
-      from: data.from,
-      to: data.to,
+      from: from,
+      to: to,
     });
 
-    await this.repoReservations.insert(reservation);
+    try {
+      const id = await this.api.create({
+        from: from,
+        to: to,
+        user: user,
+        parkingPlace: parkingPlace,
+      });
+
+      reservation.setId(id);
+
+      await this.repoReservations.insert(reservation);
+    } catch (e) {
+      this.remove(reservation);
+      throw e;
+    }
 
     return reservation;
+  }
+
+  async remove(reservation: Reservation): Promise<void> {
+    reservation.parkingPlace.removeReservation(reservation);
+    this.repoReservations.remove(reservation);
+  }
+
+  async getAvailableParkingPlace(from: Date, to: Date): Promise<ParkingPlace | null> {
+    const parkingPlaces = await this.repoParkingPlaces.findAll();
+
+    for (const parkingPlace of parkingPlaces) {
+      const conflicts = parkingPlace.getConflicts(from, to);
+      if (conflicts.length === 0) {
+        return parkingPlace;
+      }
+    }
+
+    return null;
   }
 }
