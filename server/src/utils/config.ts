@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv-flow';
+
 export type Config = {
   http: {
     port: number,
@@ -20,6 +22,8 @@ function requireEnv(envName: string): string {
 }
 
 export function loadEnvConfig(): Config {
+  dotenv.config();
+
   return {
     http: {
       port: Number.parseInt(requireEnv("HTTP_PORT")),

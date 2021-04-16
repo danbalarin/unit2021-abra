@@ -15,10 +15,12 @@
     "dotenv-flow": "^3.2.0",
     "express": "^4.17.1",
     "helmet": "^4.4.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "tsyringe": "^4.5.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.10",
+    "@types/dotenv-flow": "^3.1.0",
     "@types/express": "^4.17.11",
     "@types/morgan": "^1.9.2",
     "@types/node": "^14.14.41",

@@ -15,7 +15,7 @@ export default class Auth {
 
   getBasicAuthHeader(): Header {
     const { username, password } = this.config.flexibee;
-    const token = btoa(username + ':' + password);
+    const token = Buffer.from(username + ':' + password).toString('base64');
 
     return {
       'Authorization': 'Basic ' + token

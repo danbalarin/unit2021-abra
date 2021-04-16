@@ -1,17 +1,17 @@
-import ParkingSpot from './parkingSpot';
+import ParkingPlace from './parkingPlace';
 import User from './user';
 
 export default class Reservation {
   
   readonly id: number;
-  readonly parkingSpot: ParkingSpot;
+  readonly parkingPlace: ParkingPlace;
   readonly user: User;
   readonly from: Date;
   readonly to: Date;
 
   constructor(options: {
     id: number,
-    parkingSpot: ParkingSpot,
+    parkingPlace: ParkingPlace,
     user: User,
     from: Date,
     to: Date,
