@@ -8,8 +8,6 @@ export interface CardProps {
 
 function Card({ children }: CardProps): ReactElement {
   const { colorMode } = useColorMode();
-  const bgColor = { dark: "gray.50", light: "gray.900" };
-  const color = { dark: "black", light: "white" };
   const borderColor = { dark: "orange.500", light: "orange.700" };
   return (
     <Box

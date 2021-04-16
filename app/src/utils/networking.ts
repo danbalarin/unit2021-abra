@@ -17,6 +17,10 @@ export const kyInstance = ky.create({
         }
         return req;
       },
+      (req) => {
+        req.headers.append("Content-Type", "text/plain; charset=utf-8");
+        return req;
+      },
     ],
   },
 });
