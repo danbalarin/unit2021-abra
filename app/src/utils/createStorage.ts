@@ -4,6 +4,7 @@ export const createNoopStorage = () => {
       return Promise.resolve(null);
     },
     setItem(_key: string, value: string) {
+      value.toString();
       return Promise.resolve();
     },
     removeItem(_key: string) {
