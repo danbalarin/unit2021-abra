@@ -9,6 +9,7 @@ import useGeneralStore from "state/general";
 import useRequest from "utils/useRequest";
 import { Section } from "components/Section";
 import { ReservationRow } from "components/ReservationRow";
+import { CTA } from "components/CTA";
 
 export interface DashboardProps {}
 
@@ -66,31 +67,34 @@ function Dashboard({}: DashboardProps): ReactElement {
   }
 
   return (
-    <Stack
-      direction={["column", "row"]}
-      paddingTop="2"
-      paddingX="4"
-      width="100%"
-      height="100%"
-      display="flex"
-      justifyContent="center"
-      alignItems="flex-start"
-    >
-      <Section
-        title="Aktualni"
-        marginRight={["0", "6"]}
-        marginBottom={["3", "0"]}
+    <>
+      <Stack
+        direction={["column", "row"]}
+        paddingTop="2"
+        paddingX="4"
+        width="100%"
+        height="100%"
+        display="flex"
+        justifyContent={["", "center"]}
+        alignItems={["", "flex-start"]}
       >
-        {currentReservations.map((r) => (
-          <ReservationRow reservation={r} />
-        ))}
-      </Section>
-      <Section title="Budouci">
-        {upcomingReservations.map((r) => (
-          <ReservationRow reservation={r} />
-        ))}
-      </Section>
-    </Stack>
+        <Section
+          title="Aktualni"
+          marginRight={["0", "6"]}
+          marginBottom={["3", "0"]}
+        >
+          {currentReservations.map((r) => (
+            <ReservationRow reservation={r} />
+          ))}
+        </Section>
+        <Section title="Budouci">
+          {upcomingReservations.map((r) => (
+            <ReservationRow reservation={r} />
+          ))}
+        </Section>
+      </Stack>
+      <CTA />
+    </>
   );
 }
 
