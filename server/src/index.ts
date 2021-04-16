@@ -1,4 +1,8 @@
 import ParkingService from './service';
 
-const srv = new ParkingService();
-srv.init();
+async function main() {
+  const srv = new ParkingService();
+  await srv.init();
+}
+
+main();

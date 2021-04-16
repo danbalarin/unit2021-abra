@@ -1,8 +1,11 @@
+import * as dotenv from 'dotenv-flow';
+
 export type Config = {
   http: {
     port: number,
   },
   flexibee: {
+    proxyUrl: string,
     apiUrl: string,
     companyName: string,
     username: string,
@@ -20,11 +23,14 @@ function requireEnv(envName: string): string {
 }
 
 export function loadEnvConfig(): Config {
+  dotenv.config();
+
   return {
     http: {
       port: Number.parseInt(requireEnv("HTTP_PORT")),
     },
     flexibee: {
+      proxyUrl: requireEnv("FLEXIBEE_PROXY_URL"),
       apiUrl: requireEnv("FLEXIBEE_API_URL"),
       companyName: requireEnv("FLEXIBEE_COMPANY_NAME"),
       username: requireEnv("FLEXIBEE_USERNAME"),

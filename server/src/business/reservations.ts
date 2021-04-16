@@ -2,28 +2,59 @@ import ReservationsRepository from '../repositories/inmemory/reservations';
 import ReservationsAPI, { ReservationPayload } from '../api/reservations';
 import Reservation from '../models/reservation';
 import User from '../models/user';
-import ParkingSpot from '../models/parkingSpot';
+import ParkingPlace from '../models/parkingPlace';
 import UsersRepository from '../repositories/inmemory/users';
-import ParkingSpotsRepository from '../repositories/inmemory/parkingSpots';
+import ParkingPlacesRepository from '../repositories/inmemory/parkingPlaces';
 
-export default class ReservationBusiness {
+export default class ReservationsBusiness {
 
   private api: ReservationsAPI;
   private repoReservations: ReservationsRepository;
   private repoUsers: UsersRepository;
-  private repoParkingSpots: ParkingSpotsRepository;
+  private repoParkingPlaces: ParkingPlacesRepository;
+
+  private isFetched: boolean;
 
   constructor(options: {
     api: ReservationsAPI,
     repoReservations: ReservationsRepository,
     repoUsers: UsersRepository,
-    repoParkingSpots: ParkingSpotsRepository,
+    repoParkingPlaces: ParkingPlacesRepository,
   }) {
-    Object.assign(options);
+    Object.assign(this, options);
+    this.isFetched = false;
+  }
+
+  async fetch(): Promise<Reservation[]> {
+    if (this.isFetched) return;
+    
+    const reservationsRaw = await this.api.list();
+    const reservations = await Promise.all(reservationsRaw.map(async reservationRaw => {
+      const username = reservationRaw.zodpPrac.replace(/^code:/, "");
+      const parkingPlaceId = Number.parseInt(reservationRaw.zakazka.replace(/^code:/, ""));
+      
+      const user = await this.repoUsers.findByUsername(username);
+      const parkingPlace = await this.repoParkingPlaces.findById(parkingPlaceId);
+
+      return new Reservation({
+        id: reservationRaw.id,
+        parkingPlace: parkingPlace,
+        user: user,
+        from: new Date(reservationRaw.zahajeni),
+        to: new Date(reservationRaw.dokonceni),
+      });
+    }));
+
+    console.log(reservations);
+
+    reservations.forEach(reservation => this.repoReservations.insert(reservation));
+    
+    this.api.list();
+    this.isFetched = true;
   }
 
   async list(): Promise<Reservation[]> {
-    return this.api.list();
+    return await this.repoReservations.findAll();
   }
   
   async create(data: ReservationPayload): Promise<Reservation> {
@@ -31,12 +62,12 @@ export default class ReservationBusiness {
 
     const id = await this.api.create(data);
 
-    const parkingSpot = await this.repoParkingSpots.findById(data.parkingSpotId);
+    const parkingPlace = await this.repoParkingPlaces.findById(data.parkingPlaceId);
 
     const reservation = new Reservation({
       id: id,
       user: user,
-      parkingSpot: parkingSpot,
+      parkingPlace: parkingPlace,
       from: data.from,
       to: data.to,
     });

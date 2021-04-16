@@ -1,5 +1,7 @@
-import ReservationController from '../controllers/reservation';
+import UsersController from '../controllers/users';
+import ReservationsController from '../controllers/reservations';
 
 export default interface IControllers {
-  getReservationsController(): ReservationController;
+  getReservationsController(): ReservationsController;
+  getUsersController(): UsersController;
 }

@@ -12,7 +12,7 @@ export default class UsersRepository {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    return Object.values(this.storage).find(user => user.name == username);
+    return Object.values(this.storage).find(user => user.username == username);
   }
 
   async findAll(): Promise<User[]> {

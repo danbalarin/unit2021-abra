@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { Config } from '../utils/config';
-import Reservation from '../models/reservation';
 import Auth from '../utils/auth';
 
 export interface UserResponse {
@@ -12,7 +11,18 @@ export interface UserResponse {
   role: string
 }
 
-export default class ReservationAPI {
+export interface CheckResponse {
+  authSessionId: string
+  refreshToken: string
+  csrfToken: string
+  success: boolean
+}
+
+export interface MeResponse {
+  id: number
+}
+
+export default class UsersApi {
 
   private config: Config;
   private auth: Auth;
@@ -29,10 +39,29 @@ export default class ReservationAPI {
       headers: this.auth.getBasicAuthHeader()
     });
 
-    const res = JSON.parse(req.data);
-    const users = res.winstrom.uzivatel;
-
+    const users = req.data.winstrom.uzivatel;
     return users as UserResponse[];
+  }
+
+  async check(): Promise<CheckResponse> {
+    const req = await axios.get(`${this.config.flexibee.companyUrl}/login-logout/check`, {
+      headers: Object.assign({
+        'Accept': 'application/json'
+      }, this.auth.getBasicAuthHeader())
+    });
+
+    return req.data as CheckResponse;
+  }
+
+  async myId(token: string): Promise<number> {
+    const req = await axios.get(`${this.config.flexibee.companyUrl}/uzivatel/(id=me())`, {
+      headers: {
+        'Accept': 'application/json',
+        'Cookie': 'authSessionId=' + token,
+      }
+    });
+
+    return req.data.winstrom.uzivatel[0].id;
   }
 
 }

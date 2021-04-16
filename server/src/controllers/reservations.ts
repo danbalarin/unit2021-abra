@@ -1,7 +1,7 @@
 import { Response, Request } from 'express';
 import ReservationsBusiness, * as bc from '../business/reservations';
 
-export default class ReservationController {
+export default class ReservationsController {
   
   private bc: ReservationsBusiness;
 
@@ -14,6 +14,7 @@ export default class ReservationController {
   async list(req: Request, res: Response) {
     const data = await this.bc.list();
 
+    console.log(res.locals.user);
     res.json({
       data
     });
@@ -23,6 +24,13 @@ export default class ReservationController {
     const {
 
     } = req.body;
+
+    res.json({
+      "state": "Ok"
+    });
+  }
+
+  delete(req: Request, res: Response) {
 
     res.json({
       "state": "Ok"

@@ -1,17 +1,27 @@
 import axios from 'axios';
 import { Config } from '../utils/config';
-import Reservation from '../models/reservation';
 import Auth from '../utils/auth';
 
 export interface ReservationPayload {
-  id?: number,
   from: Date,
   to: Date,
-  parkingSpotId: number,
+  parkingPlaceId: number,
   username: string,
+  userRealName?: string,
 }
 
-export default class ReservationAPI {
+export interface ReservationResponse {
+  id: number
+  typAkt: string
+  zodpPrac: string
+  zahajeni: string
+  dokonceni: string
+  predmet: string
+  zakazka: string
+  volno: boolean
+}
+
+export default class ReservationApi {
 
   private config: Config;
   private auth: Auth;
@@ -32,8 +42,8 @@ export default class ReservationAPI {
             "zodpPrac": `code:${reservation.username}`,
             "zahajeni": reservation.from.toISOString(),
             "dokonceni": reservation.to.toISOString(),
-            "predmet": `${reservation.username} ${formatDateToTime(reservation.from)} - ${formatDateToTime(reservation.to)}`,
-            "zakazka": `code:${reservation.parkingSpotId}`,
+            "predmet": `${reservation.userRealName || reservation.username} ${formatDateToTime(reservation.from)} - ${formatDateToTime(reservation.to)}`,
+            "zakazka": `code:${reservation.parkingPlaceId}`,
             "volno": false
           }
         ]
@@ -54,15 +64,13 @@ export default class ReservationAPI {
     return Number.parseInt(res.data.winstrom.results[0].id);
   }
 
-  async list(): Promise<ReservationPayload[]> {
+  async list(): Promise<ReservationResponse[]> {
     const req = await axios.get(`${this.config.flexibee.companyUrl}/udalost.json?limit=0`, {
       headers: this.auth.getBasicAuthHeader()
     });
 
-    const res = JSON.parse(req.data);
-    const events = res.winstrom.udalost;
-
-    return events as ReservationPayload[];
+    const events = req.data.winstrom.udalost;
+    return events as ReservationResponse[];
   }
 
 }
