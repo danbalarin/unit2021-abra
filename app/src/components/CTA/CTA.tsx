@@ -10,7 +10,7 @@ function CTA({ ...props }: CTAProps): ReactElement {
       borderRadius="full"
       size="lg"
       colorScheme="green"
-      position="absolute"
+      position="fixed"
       bottom="2rem"
       right="2rem"
       width={["4rem", "4rem"]}

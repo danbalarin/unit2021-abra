@@ -8,15 +8,12 @@ import { Appbar } from "components/Appbar";
 
 const Index = () => {
   const role = useUserStore((state) => state.role);
-  console.log(role);
   return (
     <AuthenticatedRoute>
-      <>
-        <Container height="100vh">
-          <Appbar />
-          {ELEVATED_ROLES.includes(role) ? <DashboardAdmin /> : <Dashboard />}
-        </Container>
-      </>
+      <Container minHeight="100vh" height="100%" paddingBottom={["8rem", ""]}>
+        <Appbar />
+        {ELEVATED_ROLES.includes(role) ? <DashboardAdmin /> : <Dashboard />}
+      </Container>
     </AuthenticatedRoute>
   );
 };

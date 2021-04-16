@@ -1,9 +1,9 @@
 import { Center, Stack } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/toast";
 import React, { ReactElement, useEffect } from "react";
-import { isSameDay, isAfter, endOfToday } from "date-fns";
+import { isSameDay, isAfter, endOfToday, isBefore, compareAsc } from "date-fns";
 
-import { Reservation } from "models/Reservation";
+import { RESERVATION } from "models/Reservation";
 import { Loading } from "components/Loading";
 import useGeneralStore from "state/general";
 import useRequest from "utils/useRequest";
@@ -21,31 +21,12 @@ function Dashboard({}: DashboardProps): ReactElement {
 
   const { loading, error } = useRequest("asdada");
 
-  const data: Reservation[] = [
-    {
-      username: "",
-      from: new Date("2021-04-16T08:00:00+00:00"),
-      to: new Date("2021-04-16T18:00:00+00:00"),
-      parkingSpotId: 102,
-    },
-    {
-      username: "",
-      from: new Date("2021-04-17T08:00:00+00:00"),
-      to: new Date("2021-04-17T18:00:00+00:00"),
-      parkingSpotId: 105,
-    },
-    {
-      username: "",
-      from: new Date("2021-04-18T08:00:00+00:00"),
-      to: new Date("2021-04-18T18:00:00+00:00"),
-      parkingSpotId: 105,
-    },
-  ];
-
-  const currentReservations = data.filter((d) => isSameDay(d.from, Date.now()));
-  const upcomingReservations = data.filter((d) =>
-    isAfter(d.from, endOfToday())
+  const currentReservations = RESERVATION.filter((d) =>
+    isSameDay(d.from, Date.now())
   );
+  const upcomingReservations = RESERVATION.filter((d) =>
+    isAfter(d.from, endOfToday())
+  ).sort((d1, d2) => compareAsc(d1.from, d2.from));
 
   useEffect(() => {
     if (error) {

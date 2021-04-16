@@ -1,18 +1,22 @@
 import React, { ReactElement, useCallback, useRef } from "react";
-import { Box } from "@chakra-ui/layout";
-import { Button, Text } from "@chakra-ui/react";
-import { format, isToday } from "date-fns";
-import { cs } from "date-fns/locale";
+import { Box, BoxProps } from "@chakra-ui/layout";
+import { IconButton, Text } from "@chakra-ui/react";
 
 import { Reservation } from "models/Reservation";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { ConfirmDelete } from "components/ConfirmDelete";
+import { dateToText, timeRangeToText } from "utils/dateToText";
 
-export interface ReservationRowProps {
+export interface ReservationRowProps extends BoxProps {
   reservation: Reservation;
+  singleRow?: boolean;
 }
 
-function ReservationRow({ reservation }: ReservationRowProps): ReactElement {
+function ReservationRow({
+  reservation,
+  singleRow,
+  ...props
+}: ReservationRowProps): ReactElement {
   const onEdit = useCallback(() => {
     console.log("edit");
   }, []);
@@ -24,19 +28,15 @@ function ReservationRow({ reservation }: ReservationRowProps): ReactElement {
     confirmRef.current.show();
   }, [confirmRef.current]);
 
-  const date = isToday(reservation.from)
-    ? "Dnes"
-    : format(reservation.from, "dd. MMMM", { locale: cs });
-  const time = `${format(reservation.from, "hh:mm")}-${format(
-    reservation.to,
-    "hh:mm"
-  )}`;
+  const gridTemplateAreas = singleRow
+    ? '"time name spotId controls"'
+    : '"date spotId""time controls"';
 
   return (
     <Box
       display="grid"
-      gridTemplateAreas={'"date spotId""time controls"'}
-      width={["100%", "400px"]}
+      gridTemplateAreas={gridTemplateAreas}
+      width={singleRow ? "100%" : ["100%", "400px"]}
       backgroundColor="gray.100"
       color="black"
       padding="2"
@@ -44,22 +44,61 @@ function ReservationRow({ reservation }: ReservationRowProps): ReactElement {
       shadow="lg"
       transition=".3s all"
       _hover={{ backgroundColor: "blue.100", shadow: "xl" }}
+      {...props}
     >
-      <Text gridArea="date">{date}</Text>
-      <Text gridArea="spotId" textAlign="right" fontWeight="bold">
+      {!singleRow && (
+        <Text gridArea="date">{dateToText(reservation.from)}</Text>
+      )}
+      {singleRow && (
+        <Text
+          gridArea="name"
+          display="flex"
+          alignItems="center"
+          justifyContent="flex-start"
+        >
+          {reservation.username}
+        </Text>
+      )}
+      <Text
+        gridArea="spotId"
+        textAlign="right"
+        fontWeight="bold"
+        display="flex"
+        justifyContent="flex-end"
+        alignItems="center"
+      >
         P-{reservation.parkingSpotId}
       </Text>
-      <Text gridArea="time" display="flex" alignItems="center">
-        {time}
+      <Text
+        gridArea="time"
+        display="flex"
+        alignItems="center"
+        maxWidth="fit-content"
+        width="100px"
+      >
+        {timeRangeToText(reservation.from, reservation.to)}
       </Text>
-      <Text gridArea="controls" textAlign="right">
-        <Button variant="unstyled" size="md" onClick={onEdit}>
-          <EditIcon />
-        </Button>
-        <Button variant="unstyled" size="md" onClick={onDelete}>
-          <DeleteIcon />
-        </Button>
-      </Text>
+      <Box
+        gridArea="controls"
+        display="flex"
+        justifyContent="flex-end"
+        textAlign="right"
+      >
+        <IconButton
+          aria-label="edit reservation"
+          variant="unstyled"
+          size="sm"
+          onClick={onEdit}
+          icon={<EditIcon height="1.5em" width="1.5em" />}
+        />
+        <IconButton
+          aria-label="delete reservation"
+          variant="unstyled"
+          size="sm"
+          onClick={onDelete}
+          icon={<DeleteIcon height="1.5em" width="1.5em" />}
+        />
+      </Box>
       <ConfirmDelete ref={confirmRef} onConfirm={onDeleteConfirm} />
     </Box>
   );
