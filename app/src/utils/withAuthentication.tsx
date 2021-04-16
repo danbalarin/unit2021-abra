@@ -1,13 +1,13 @@
 import React from "react";
 import Router from "next/router";
 
-import useStore from "state/user";
+import useUserStore from "state/user";
 import { Loading } from "components/Loading";
 
 function withAuthentication(
   Component: React.ComponentType
 ): React.ComponentType {
-  const sessionId = useStore.getState().sessionId;
+  const sessionId = useUserStore.getState().sessionId;
   if (sessionId) {
     return Component;
   }

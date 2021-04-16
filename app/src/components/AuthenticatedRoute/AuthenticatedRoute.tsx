@@ -1,7 +1,7 @@
 import { Loading } from "components/Loading";
 import { useRouter } from "next/router";
 import React, { ReactElement, useCallback } from "react";
-import useStore from "state/user";
+import useUserStore from "state/user";
 
 export interface AuthenticatedRouteProps {
   children: React.ReactElement;
@@ -10,7 +10,7 @@ export interface AuthenticatedRouteProps {
 function AuthenticatedRoute({
   children: Children,
 }: AuthenticatedRouteProps): ReactElement {
-  const sessionId = useStore(useCallback((store) => store.sessionId, []));
+  const sessionId = useUserStore(useCallback((store) => store.sessionId, []));
   const router = useRouter();
   if (typeof document === "undefined") {
     return <Loading />;

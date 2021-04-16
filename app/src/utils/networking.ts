@@ -3,7 +3,7 @@ import {
   UserDetailResponse,
   userDetailResponseToUser,
 } from "models/UserDetailResponse";
-import useStore, { UserState } from "state/user";
+import useUserStore, { UserState } from "state/user";
 import { GetState } from "zustand";
 
 export const kyInstance = ky.create({
@@ -11,7 +11,7 @@ export const kyInstance = ky.create({
   hooks: {
     beforeRequest: [
       (req) => {
-        const { sessionId } = useStore.getState();
+        const { sessionId } = useUserStore.getState();
         if (sessionId) {
           req.headers.append("X-authSessionId", sessionId);
         }

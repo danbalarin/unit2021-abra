@@ -14,7 +14,7 @@ import { Stack } from "@chakra-ui/layout";
 import { Card } from "components/Card";
 import { Container } from "components/Container";
 import { kyInstance } from "utils/networking";
-import useStore from "state/user";
+import useUserStore from "state/user";
 import { LoginResponse } from "models/LoginResponse";
 import { useRouter } from "next/router";
 
@@ -23,7 +23,7 @@ interface Props {}
 function Login({}: Props): ReactElement {
   const [error, setError] = useState<Error>();
   const { replace } = useRouter();
-  const sessionId = useStore((s) => s.sessionId);
+  const sessionId = useUserStore((s) => s.sessionId);
 
   useEffect(() => {
     if (sessionId) {
@@ -45,7 +45,7 @@ function Login({}: Props): ReactElement {
         })
         .json<LoginResponse>();
       if (!!res) {
-        useStore.getState().setSessionId(res.authSessionId || "");
+        useUserStore.getState().setSessionId(res.authSessionId || "");
       }
       setError(undefined);
     } catch (e) {

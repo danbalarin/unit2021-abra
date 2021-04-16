@@ -17,7 +17,7 @@ interface Actions {
 
 export type UserState = User & State & Actions;
 
-const useStore = create<UserState>(
+const useUserStore = create<UserState>(
   persist(
     {
       key: "auth",
@@ -47,4 +47,4 @@ const useStore = create<UserState>(
   )
 );
 
-export default useStore;
+export default useUserStore;
