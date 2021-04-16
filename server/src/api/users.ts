@@ -55,10 +55,10 @@ export default class UsersApi {
 
   async myId(token: string): Promise<number> {
     const req = await axios.get(`${this.config.flexibee.companyUrl}/uzivatel/(id=me())`, {
-      headers: Object.assign({
+      headers: {
         'Accept': 'application/json',
         'Cookie': 'authSessionId=' + token,
-      }, this.auth.getBasicAuthHeader())
+      }
     });
 
     return req.data.winstrom.uzivatel[0].id;

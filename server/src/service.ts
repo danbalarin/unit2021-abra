@@ -6,7 +6,7 @@ import ParkingPlacesBusiness from './business/parkingPlaces';
 import ReservationsBusiness from './business/reservations';
 import UsersBusiness from './business/users';
 import ReservationsController from './controllers/reservations';
-import UsersController from './controllers/user';
+import UsersController from './controllers/users';
 import { createServer } from './http/server';
 import ParkingPlacesRepository from './repositories/inmemory/parkingPlaces'
 import ReservationsRepository from './repositories/inmemory/reservations';

@@ -14,6 +14,7 @@ export default class ReservationsController {
   async list(req: Request, res: Response) {
     const data = await this.bc.list();
 
+    console.log(res.locals.user);
     res.json({
       data
     });
