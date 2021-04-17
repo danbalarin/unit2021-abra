@@ -82,6 +82,12 @@ export default class ReservationApi {
     return Number.parseInt(res.data.winstrom.results[0].id);
   }
 
+  async update(id: number, { to }: {
+    to?: Date
+  }): Promise<void> {
+    
+  }
+
   async remove(id: number): Promise<void> {
     const res = await axios.delete(`${this.config.flexibee.companyUrl}/udalost/${id}.json`, {
       headers: Object.assign({

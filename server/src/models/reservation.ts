@@ -7,10 +7,11 @@ export default class Reservation {
   private _parkingPlace: ParkingPlace;
   readonly user: User;
   readonly from: Date;
-  readonly to: Date;
+  private _to: Date;
 
   public get id(): number { return this._id; }
   public get parkingPlace(): ParkingPlace { return this._parkingPlace; }
+  public get to(): Date { return this._to; }
 
   constructor(options: {
     id?: number,
@@ -22,7 +23,7 @@ export default class Reservation {
     this._id = options.id;
     this.user = options.user;
     this.from = options.from;
-    this.to = options.to;
+    this._to = options.to;
     this._parkingPlace = options.parkingPlace;
     this._parkingPlace.addReservation(this);
   }
@@ -46,6 +47,10 @@ export default class Reservation {
     this._parkingPlace.removeReservation(this);
     parkingPlace.addReservation(this);
     this._parkingPlace = parkingPlace;
+  }
+
+  setTo(to: Date): void {
+    this._to = to;
   }
 
   toJSON(): Object {

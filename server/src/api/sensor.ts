@@ -10,7 +10,7 @@ export interface SensorHistory {
   value: boolean
 }
 
-export default class ParkingPlacesApi {
+export default class SensorsApi {
 
   private config: Config;
 

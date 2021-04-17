@@ -11,6 +11,23 @@ export default class UsersController {
     Object.assign(this, options);
   }
 
+  async list(req: Request, res: Response) {
+    try {
+      const users = await this.bc.list();
+      const data = users.map(reservation => reservation.toJSON());
+
+      return res.json({
+        success: true,
+        data: data,
+      });
+    } catch (e) {
+      console.error(e);
+      return res.status(401).json({
+        'error': `Your auth token is not valid. Please login again.`,
+      });
+    }
+  }
+
   async validate(req: Request, res: Response, next: NextFunction) {
     if (typeof req.headers.authtokenid !== "string") {
       return res.status(400).json({
