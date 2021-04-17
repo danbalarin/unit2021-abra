@@ -1,8 +1,5 @@
 import ky from "ky";
-import {
-  AllUsersProprietaryResponse,
-  AllUsersResponse,
-} from "models/AllUsersResponse";
+import { AllUsersProprietaryResponse } from "models/AllUsersResponse";
 import {
   UserDetailResponse,
   userDetailResponseToUser,

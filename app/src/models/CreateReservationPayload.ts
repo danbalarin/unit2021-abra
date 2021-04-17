@@ -1,5 +1,4 @@
 import * as Yup from "yup";
-import { parse } from "date-fns";
 
 export interface CreateReservationPayload {
   from: string;

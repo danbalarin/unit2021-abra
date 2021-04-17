@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  SyntheticEvent,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { Button } from "@chakra-ui/button";
 import {
   FormControl,
