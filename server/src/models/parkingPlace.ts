@@ -5,7 +5,10 @@ export default class ParkingPlace {
   readonly code: number;
   readonly ownerId?: number;
 
+  // Reservations by employees without fixed parking place
   private reservations: Reservation[];
+  // Release by manager, that owns this parking place
+  private releases: Reservation[];
 
   constructor(options: {
     id: number,
@@ -15,10 +18,15 @@ export default class ParkingPlace {
     Object.assign(this, options);
 
     this.reservations = [];
+    this.releases = [];
   }
 
   addReservation(reservation: Reservation): void {
     this.reservations.push(reservation);
+  }
+
+  addRelease(reservation: Reservation): void {
+    this.releases.push(reservation);
   }
 
   removeReservation(reservation: Reservation): void {
@@ -28,13 +36,37 @@ export default class ParkingPlace {
     }
   }
 
+  removeRelease(reservation: Reservation): void {
+    const index = this.releases.indexOf(reservation);
+    if (index !== -1) {
+      this.releases.splice(index, 1);
+    }
+  }
+
   getReservations(): Reservation[] {
     return this.reservations;
   }
 
-  getConflicts(from: Date, to: Date): Reservation[] {
+  getReleases(): Reservation[] {
+    return this.reservations;
+  }
+
+  getConflicts(from: Date, to: Date, ignoreReservationId?: number): Reservation[] | false {
+    if (this.isOwnedPlace()) {
+      const release = this.releases.find(release => release.from <= from && to >= release.to);
+      if (!release) {
+        return false;
+      }
+    }
+
     return this.getReservations()
-      .filter(reservation => reservation.conflictsWithTimeRange(from, to));
+      .filter(reservation => {
+        return reservation.conflictsWithTimeRange(from, to) && reservation.id !== ignoreReservationId;
+      });
+  }
+
+  isOwnedPlace(): boolean {
+    return !!this.ownerId;
   }
 
   toJSON(): Object {

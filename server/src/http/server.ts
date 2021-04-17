@@ -1,12 +1,12 @@
 import express from 'express';
 import { Config } from '../utils/config';
-import IControllers from './interface';
+import ControllersInterface from './interface';
 import { applyMiddlewares } from './middleware';
 import { applyRoutes } from './router';
 
 export function createServer({ port, controllers, config }: {
   port: number,
-  controllers: IControllers,
+  controllers: ControllersInterface,
   config: Config
 }): express.Express {
   const app = express();

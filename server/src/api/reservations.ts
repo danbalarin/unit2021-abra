@@ -82,10 +82,39 @@ export default class ReservationApi {
     return Number.parseInt(res.data.winstrom.results[0].id);
   }
 
-  async update(id: number, { to }: {
-    to?: Date
+  async update(id: number, { from, to, parkingPlace }: {
+    from?: Date,
+    to?: Date,
+    parkingPlace?: ParkingPlace
   }): Promise<void> {
-    
+    const changes: {
+      id: number,
+      dokonceni?: string,
+      zahajeni?: string,
+      zakazka?: string,
+    } = {
+      "id": id,
+    };
+
+    if (from) changes.zahajeni = from.toISOString();
+    if (to) changes.dokonceni = to.toISOString();
+    if (parkingPlace) changes.zakazka = `code:${parkingPlace.code}`;
+
+    const res = await axios.post(`${this.config.flexibee.companyUrl}/udalost.json`, {
+      "winstrom": {
+        "udalost": [
+          changes
+        ]
+      }
+    }, {
+      headers: Object.assign({
+        'Accept': 'application/json'
+      }, this.auth.getBasicAuthHeader())
+    });
+
+    if (!res.data.winstrom.stats.updated) {
+      throw new Error("Reservation didn't really changed...");
+    }
   }
 
   async remove(id: number): Promise<void> {

@@ -1,12 +1,12 @@
 import { Response, Request } from 'express';
-import ReservationsBusiness, { ERR_NO_PLACE_AVAILABLE } from '../business/reservations';
+import ReservationsBusinessInterface, { ERR_NO_PLACE_AVAILABLE } from '../business/reservationsInterface';
 
 export default class ReservationsController {
   
-  private bc: ReservationsBusiness;
+  private bc: ReservationsBusinessInterface;
 
   constructor(options: {
-    bc: ReservationsBusiness
+    bc: ReservationsBusinessInterface
   }) {
     Object.assign(this, options);
   }

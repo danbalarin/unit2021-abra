@@ -1,12 +1,9 @@
-import ReservationsRepository from '../repositories/inmemory/reservations';
-import UsersApi, { UserResponse } from '../api/users';
-import Reservation from '../models/reservation';
-import User, {UserRole} from '../models/user';
-import ParkingPlace from '../models/parkingPlace';
 import UsersRepository from '../repositories/inmemory/users';
-import ParkingPlacesRepository from '../repositories/inmemory/parkingPlaces';
+import UsersApi, { UserResponse } from '../api/users';
+import User, {UserRole} from '../models/user';
+import UsersBusinessInterface from './usersInterface';
 
-export default class UsersBusiness {
+export default class UsersBusiness implements UsersBusinessInterface {
 
   private api: UsersApi;
   private repoUsers: UsersRepository;
@@ -48,5 +45,10 @@ export default class UsersBusiness {
     const id = await this.api.myId(token);
     const user = await this.repoUsers.findById(id);
     return user;
+  }
+
+  async getReceptionists(): Promise<User[]> {
+    const users = await this.list();
+    return users.filter(user => user.role === UserRole.RECEPTIONIST);
   }
 }

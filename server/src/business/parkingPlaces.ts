@@ -4,8 +4,9 @@ import User from '../models/user';
 import ParkingPlace from '../models/parkingPlace';
 import UsersRepository from '../repositories/inmemory/users';
 import ParkingPlacesRepository from '../repositories/inmemory/parkingPlaces';
+import ParkingPlacesBusinessInterface from './parkingPlacesInterface';
 
-export default class ParkingPlacesBusiness {
+export default class ParkingPlacesBusiness implements ParkingPlacesBusinessInterface {
 
   private api: ParkingPlacesApi;
   private repoUsers: UsersRepository;

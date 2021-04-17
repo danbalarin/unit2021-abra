@@ -5,7 +5,9 @@ import SensorsApi from './api/sensor';
 import UsersApi from './api/users';
 import ParkingPlacesBusiness from './business/parkingPlaces';
 import ReservationsBusiness from './business/reservations';
+import SensorsBusiness from './business/sensors';
 import UsersBusiness from './business/users';
+import ParkingPlacesController from './controllers/parkingPlaces';
 import ReservationsController from './controllers/reservations';
 import UsersController from './controllers/users';
 import { createServer } from './http/server';
@@ -14,10 +16,12 @@ import ReservationsRepository from './repositories/inmemory/reservations';
 import UsersRepository from './repositories/inmemory/users';
 import Auth from './utils/auth';
 import { Config, loadEnvConfig } from './utils/config';
+import Notifier from './utils/notifier';
 
 export default class ParkingService {
   private auth: Auth;
   private config: Config;
+  private notifier: Notifier;
   private http: Express;
 
   private reservationsRepo: ReservationsRepository;
@@ -32,9 +36,11 @@ export default class ParkingService {
   private reservationsBusiness: ReservationsBusiness;
   private usersBusiness: UsersBusiness;
   private parkingPlacesBusiness: ParkingPlacesBusiness;
+  private sensorsBusiness: SensorsBusiness;
 
   private reservationsController: ReservationsController;
   private usersController: UsersController;
+  private parkingPlacesController: ParkingPlacesController;
   
   constructor() {
     
@@ -43,8 +49,12 @@ export default class ParkingService {
   async init() {
     this.config = loadEnvConfig();
     this.auth = new Auth({ config: this.config });
+    this.notifier = new Notifier({ config: this.config });
 
-    await this.setupLogic();
+    await this.initRepositories();
+    await this.initApis();
+    await this.initBusinesses();
+    await this.initControllers();
 
     this.http = createServer({
       port: this.config.http.port,
@@ -53,16 +63,20 @@ export default class ParkingService {
     });
   }
 
-  async setupLogic() {
+  async initRepositories() {
     this.reservationsRepo = new ReservationsRepository();
     this.usersRepo = new UsersRepository();
     this.parkingPlacesRepo = new ParkingPlacesRepository();
+  }
 
+  async initApis() {
     this.sensorsApi = new SensorsApi({ config: this.config });
     this.reservationsApi = new ReservationsApi({ config: this.config, auth: this.auth });
     this.usersApi = new UsersApi({ config: this.config, auth: this.auth });
     this.parkingPlacesApi = new ParkingPlacesApi({ config: this.config, auth: this.auth });
+  }
 
+  async initBusinesses() {
     this.usersBusiness = new UsersBusiness({
       api: this.usersApi,
       repoUsers: this.usersRepo,
@@ -87,9 +101,23 @@ export default class ParkingService {
 
     await this.reservationsBusiness.fetch();
 
+    this.sensorsBusiness = new SensorsBusiness({ 
+      config: this.config,
+      notifier: this.notifier,
+      api: this.sensorsApi,
+      bcReservations: this.reservationsBusiness,
+      bcUsers: this.usersBusiness,
+    });
+
+    this.sensorsBusiness.start();
+  }
+
+  async initControllers() {
     this.usersController = new UsersController({ bc: this.usersBusiness });
     this.reservationsController = new ReservationsController({ bc: this.reservationsBusiness });
+    this.parkingPlacesController = new ParkingPlacesController({ bc: this.parkingPlacesBusiness });
   }
+
 
   public getReservationsController(): ReservationsController {
     return this.reservationsController;
@@ -97,5 +125,9 @@ export default class ParkingService {
 
   public getUsersController(): UsersController {
     return this.usersController;
+  }
+
+  public getParkingPlacesController(): ParkingPlacesController {
+    return this.parkingPlacesController;
   }
 }

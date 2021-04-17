@@ -1,12 +1,12 @@
 import { Response, Request, NextFunction } from 'express';
-import UsersBusiness from '../business/users';
+import UsersBusinessInterface from '../business/usersInterface';
 
 export default class UsersController {
   
-  private bc: UsersBusiness;
+  private bc: UsersBusinessInterface;
 
   constructor(options: {
-    bc: UsersBusiness
+    bc: UsersBusinessInterface
   }) {
     Object.assign(this, options);
   }
