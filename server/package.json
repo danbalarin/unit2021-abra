@@ -6,6 +6,8 @@
   "scripts": {
     "start": "ts-node src/index",
     "dev": "ts-node-dev src/index.ts",
+    "build": "tsc --build tsconfig.json",
+    "tsc": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
