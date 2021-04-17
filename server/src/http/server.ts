@@ -11,8 +11,8 @@ export function createServer({ port, controllers, config }: {
 }): express.Express {
   const app = express();
 
-  applyRoutes(app, controllers);
   applyMiddlewares(app, config);
+  applyRoutes(app, controllers);
 
   app.listen(port, () => console.log(`Listening on port ${port}...`));
 

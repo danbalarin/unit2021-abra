@@ -1,13 +1,14 @@
 import axios from 'axios';
 import { Config } from '../utils/config';
 import Auth from '../utils/auth';
+import User from '../models/user';
+import ParkingPlace from '../models/parkingPlace';
 
 export interface ReservationPayload {
   from: Date,
   to: Date,
-  parkingPlaceId: number,
-  username: string,
-  userRealName?: string,
+  parkingPlace: ParkingPlace,
+  user: User,
 }
 
 export interface ReservationResponse {
@@ -32,51 +33,75 @@ export default class ReservationApi {
   }) {
     Object.assign(this, options);
   }
-  
-  async create(reservation: ReservationPayload): Promise<number> {
-    const res = await axios.put(`${this.config.flexibee.companyUrl}/udalost.json`, {
-      "winstrom": {
-        "udalost": [
-          {
-            "typAkt": "code:UDÁLOST",
-            "zodpPrac": `code:${reservation.username}`,
-            "zahajeni": reservation.from.toISOString(),
-            "dokonceni": reservation.to.toISOString(),
-            "predmet": `${reservation.userRealName || reservation.username} ${formatDateToTime(reservation.from)} - ${formatDateToTime(reservation.to)}`,
-            "zakazka": `code:${reservation.parkingPlaceId}`,
-            "volno": false
-          }
-        ]
-      }
-    }, {
-      headers: this.auth.getBasicAuthHeader()
-    });
-
-    if (res.status >= 400) {
-      throw new Error(res.statusText);
-    };
-
-    let err: string;
-    if (err = res.data.winstrom.results[0]?.errors[0].message) {
-      throw new Error(err);
-    }
-
-    return Number.parseInt(res.data.winstrom.results[0].id);
-  }
 
   async list(): Promise<ReservationResponse[]> {
-    const req = await axios.get(`${this.config.flexibee.companyUrl}/udalost.json?limit=0`, {
+    const customColumns = "id,lastUpdate,zahajeni,dokonceni,predmet,zodpPrac,zakazka,volno,typAkt";
+    const req = await axios.get(`${this.config.flexibee.companyUrl}/udalost.json?limit=0&detail=custom:${customColumns}`, {
       headers: this.auth.getBasicAuthHeader()
     });
 
     const events = req.data.winstrom.udalost;
     return events as ReservationResponse[];
   }
+  
+  async create({ user, from, to, parkingPlace }: ReservationPayload): Promise<number> {
+    const eventData = {
+      "typAkt": "code:UDÁLOST",
+      "zodpPrac": `code:${user.username}`,
+      "zahajeni": from.toISOString(),
+      "dokonceni": to.toISOString(),
+      "predmet": `${user.name || user.username} ${formatDateToTime(from)} - ${formatDateToTime(to)}`,
+      "zakazka": `code:${parkingPlace.code}`,
+      "volno": false
+    };
+
+    const res = await axios.put(`${this.config.flexibee.companyUrl}/udalost.json`, {
+      "winstrom": {
+        "udalost": [
+          eventData
+        ]
+      }
+    }, {
+      headers: Object.assign({
+        'Accept': 'application/json'
+      }, this.auth.getBasicAuthHeader())
+    }).catch(err => {
+      console.error(eventData);
+      throw new Error(err.response.statusText);
+    });
+
+    if (res.status >= 400) {
+      throw new Error(res.statusText);
+    };
+
+    const errors = res.data.winstrom.results[0].errors;
+    if (errors) {
+      throw new Error(errors[0].message);
+    }
+
+    return Number.parseInt(res.data.winstrom.results[0].id);
+  }
+
+  async update(id: number, { to }: {
+    to?: Date
+  }): Promise<void> {
+    
+  }
+
+  async remove(id: number): Promise<void> {
+    const res = await axios.delete(`${this.config.flexibee.companyUrl}/udalost/${id}.json`, {
+      headers: Object.assign({
+        'Accept': 'application/json'
+      }, this.auth.getBasicAuthHeader())
+    }).catch(err => {
+      throw new Error(err.response.statusText);
+    });
+  }
 
 }
 
 function formatDateToTime(date: Date): string {
   const hours = date.getHours();
-  const minutes = "00" + date.getMinutes().toString().substr(-2);
+  const minutes = ("00" + date.getMinutes().toString()).substr(-2);
   return `${hours}:${minutes}`;
 }

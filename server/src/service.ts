@@ -1,6 +1,7 @@
 import { Express } from 'express';
 import ParkingPlacesApi from './api/parkingPlaces';
 import ReservationsApi from './api/reservations';
+import SensorsApi from './api/sensor';
 import UsersApi from './api/users';
 import ParkingPlacesBusiness from './business/parkingPlaces';
 import ReservationsBusiness from './business/reservations';
@@ -23,6 +24,7 @@ export default class ParkingService {
   private usersRepo: UsersRepository;
   private parkingPlacesRepo: ParkingPlacesRepository;
 
+  private sensorsApi: SensorsApi;
   private reservationsApi: ReservationsApi;
   private usersApi: UsersApi;
   private parkingPlacesApi: ParkingPlacesApi;
@@ -56,6 +58,7 @@ export default class ParkingService {
     this.usersRepo = new UsersRepository();
     this.parkingPlacesRepo = new ParkingPlacesRepository();
 
+    this.sensorsApi = new SensorsApi({ config: this.config });
     this.reservationsApi = new ReservationsApi({ config: this.config, auth: this.auth });
     this.usersApi = new UsersApi({ config: this.config, auth: this.auth });
     this.parkingPlacesApi = new ParkingPlacesApi({ config: this.config, auth: this.auth });

@@ -6,7 +6,9 @@ export function applyRoutes(app: Express, controllers: IControllers) {
   const users = controllers.getUsersController();
   const validate = users.validate.bind(users);
 
+  app.get("/users", validate, users.list.bind(users));
+
   app.get("/reservations", validate, reservations.list.bind(reservations));
   app.put("/reservations", validate, reservations.create.bind(reservations));
-  app.delete("/reservations", validate, reservations.delete.bind(reservations));
+  app.delete("/reservations/:reservationId", validate, reservations.remove.bind(reservations));
 }

@@ -32,7 +32,7 @@ export default class ParkingPlacesBusiness {
 
       return new ParkingPlace({
         id: parkingPlaceRaw.id,
-        name: Number.parseInt(parkingPlaceRaw.nazev),
+        code: Number.parseInt(parkingPlaceRaw.kod),
         ownerId: user?.id ?? null
       });
     }));

@@ -3,7 +3,7 @@
 		"module": "commonjs",
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"target": "es6",
+		"target": "ES2019",
 		"noImplicitAny": true,
 		"moduleResolution": "node",
     "experimentalDecorators": true,
@@ -17,5 +17,8 @@
 				"src/types/*"
 			]
 		}
-	}
+	},
+	"include": [
+    "src/**/*.ts"
+  ]
 }

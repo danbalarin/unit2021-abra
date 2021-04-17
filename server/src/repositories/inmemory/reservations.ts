@@ -8,7 +8,7 @@ export default class ReservationsRepository {
   }
 
   async findById(id: number): Promise<Reservation | null> {
-    return this.storage[id];
+    return this.storage[id] ?? null;
   }
 
   async findAll(): Promise<Reservation[]> {
@@ -17,5 +17,14 @@ export default class ReservationsRepository {
 
   async insert(reservation: Reservation): Promise<void> {
     this.storage[reservation.id] = reservation;
+  }
+
+  async remove(reservation: Reservation): Promise<boolean> {
+    if (!this.storage[reservation.id]) {
+      return false;
+    }
+    
+    delete this.storage[reservation.id];
+    return true;
   }
 }
