@@ -14,15 +14,20 @@ export type UserDetailResponse = WinstormEnclosed<{
   uzivatel: UserDetailResponseRaw[];
 }>;
 
-export const userDetailResponseToUser = (detail: UserDetailResponse): User => {
-  const roleString: string =
-    detail.winstrom.uzivatel[0].role.split("code:")[1] || "JENCIST";
+const userDetailtoUser = (user: UserDetailResponseRaw): User => {
+  const roleString: string = user.role.split("code:")[1] || "JENCIST";
 
   return {
-    email: detail.winstrom.uzivatel[0].email,
-    lastname: detail.winstrom.uzivatel[0].prijmeni,
-    username: detail.winstrom.uzivatel[0].kod,
-    name: detail.winstrom.uzivatel[0].jmeno,
+    email: user.email,
+    lastname: user.prijmeni,
+    username: user.kod,
+    name: user.jmeno,
     role: UserRole[roleString as keyof typeof UserRole],
   };
+};
+
+export const userDetailResponseToUser = (
+  detail: UserDetailResponse
+): User[] => {
+  return detail.winstrom.uzivatel.map(userDetailtoUser);
 };

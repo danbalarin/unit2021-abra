@@ -6,17 +6,23 @@ import React, {
   useState,
 } from "react";
 import { Button } from "@chakra-ui/button";
-import { FormControl, FormLabel } from "@chakra-ui/form-control";
+import {
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+} from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
 import { Stack } from "@chakra-ui/layout";
 import { useColorMode } from "@chakra-ui/color-mode";
-import { Alert, AlertIcon, AlertTitle } from "@chakra-ui/alert";
+import { Alert, AlertIcon, AlertDescription } from "@chakra-ui/alert";
 import { useRouter } from "next/router";
+import { useFormik } from "formik";
 
 import { Container } from "components/Container";
 import useUserStore from "state/user";
-import { kyInstance } from "utils/networking";
+import { kyInstance, throwOnSoftError } from "utils/networking";
 import { LoginResponse } from "models/LoginResponse";
+import { userLoginValidationSchema } from "models/User";
 
 interface Props {}
 
@@ -32,12 +38,10 @@ function Login({}: Props): ReactElement {
     }
   }, [isLogged]);
 
-  const onSubmit = useCallback(async (e: SyntheticEvent) => {
-    e.preventDefault();
-    const fd = new FormData(e.target as HTMLFormElement);
+  const onSubmit = useCallback(async (values) => {
     const body = new URLSearchParams();
-    body.append("username", fd.get("username")?.toString() || "");
-    body.append("password", fd.get("password")?.toString() || "");
+    body.append("username", values.username);
+    body.append("password", values.password);
 
     // FIXME:JSON login
     try {
@@ -45,47 +49,76 @@ function Login({}: Props): ReactElement {
         .post("login-logout/login", {
           body,
         })
-        .json<LoginResponse>();
+        .json<LoginResponse>()
+        .then(throwOnSoftError);
       if (!!res) {
         useUserStore.getState().setSessionId(res.authSessionId || "");
       }
-      setError(undefined);
     } catch (e) {
       setError(e);
     }
   }, []);
 
+  const { handleSubmit, values, touched, errors, handleChange } = useFormik({
+    initialValues: {
+      username: "",
+      password: "",
+    },
+    onSubmit: onSubmit,
+    validationSchema: userLoginValidationSchema,
+  });
+
   return (
     <Container height="100vh" justifyContent="center" alignItems="center">
-      <Stack
-        as="form"
-        spacing="2"
-        onSubmit={onSubmit}
-        borderRadius="lg"
-        border="1px solid"
-        borderColor={colorMode === "dark" ? "gray.700" : "gray.200"}
-        paddingX="6"
-        paddingY="8"
-      >
-        {error && (
-          <Alert status="error">
-            <AlertIcon />
-            <AlertTitle mr={2}>{error.message}</AlertTitle>
-          </Alert>
-        )}
-        <FormControl id="username">
-          <FormLabel>Prihlasovaci jmeno</FormLabel>
-          <Input type="username" name="username" />
-        </FormControl>
-        <FormControl id="password">
-          <FormLabel>Heslo</FormLabel>
-          <Input type="password" name="password" />
-        </FormControl>
-        <span />
-        <Button type="submit" colorScheme="blue" marginTop="2">
-          Prihlasit
-        </Button>
-      </Stack>
+      <form onSubmit={handleSubmit}>
+        <Stack
+          spacing="2"
+          borderRadius="lg"
+          border="1px solid"
+          borderColor={colorMode === "dark" ? "gray.700" : "gray.200"}
+          paddingX="6"
+          paddingY="8"
+        >
+          {error && (
+            <Alert status="error">
+              <AlertIcon />
+              <AlertDescription mr={2}>{error.message}</AlertDescription>
+            </Alert>
+          )}
+          <FormControl
+            id="username"
+            isInvalid={touched.username && !!errors.username}
+            isRequired
+          >
+            <FormLabel>Prihlasovaci jmeno</FormLabel>
+            <Input
+              type="text"
+              name="username"
+              onChange={handleChange}
+              value={values.username}
+            />
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
+          </FormControl>
+          <FormControl
+            id="password"
+            isInvalid={touched.password && !!errors.password}
+            isRequired
+          >
+            <FormLabel>Heslo</FormLabel>
+            <Input
+              type="password"
+              name="password"
+              onChange={handleChange}
+              value={values.password}
+            />
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
+          </FormControl>
+          <span />
+          <Button type="submit" colorScheme="blue" marginTop="2">
+            Prihlasit
+          </Button>
+        </Stack>
+      </form>
     </Container>
   );
 }

@@ -5,7 +5,7 @@ import { IconButton, Text } from "@chakra-ui/react";
 import { Reservation } from "models/Reservation";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { ConfirmDelete } from "components/ConfirmDelete";
-import { dateToText, timeRangeToText } from "utils/dateToText";
+import { dateToText, timeRangeToText } from "utils/date";
 
 export interface ReservationRowProps extends BoxProps {
   reservation: Reservation;

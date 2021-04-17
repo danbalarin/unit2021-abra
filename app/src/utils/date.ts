@@ -10,3 +10,5 @@ export const dateToText = (date: Date) =>
 
 export const timeRangeToText = (from: Date, to: Date) =>
   `${format(from, "hh:mm")}-${format(to, "hh:mm")}`;
+
+export const formatRFC = (date: Date) => format(date, "yyyy-MM-dd'T'HH:mm:ss");

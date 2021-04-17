@@ -1,7 +1,7 @@
 import { Center, Stack } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/toast";
-import React, { ReactElement, useEffect } from "react";
-import { isSameDay, isAfter, endOfToday, isBefore, compareAsc } from "date-fns";
+import React, { ReactElement, useEffect, useRef } from "react";
+import { isSameDay, isAfter, endOfToday, compareAsc } from "date-fns";
 
 import { RESERVATION } from "models/Reservation";
 import { Loading } from "components/Loading";
@@ -10,6 +10,7 @@ import useRequest from "utils/useRequest";
 import { Section } from "components/Section";
 import { ReservationRow } from "components/ReservationRow";
 import { CTA } from "components/CTA";
+import { CreateReservationModal } from "components/CreateReservationModal";
 
 export interface DashboardProps {}
 
@@ -17,6 +18,7 @@ function Dashboard({}: DashboardProps): ReactElement {
   useEffect(() => {
     useGeneralStore.getState().setHeading("Moje rezervace");
   }, []);
+  const modalRef = useRef<any>();
   const toast = useToast();
 
   const { loading, error } = useRequest("asdada");
@@ -65,16 +67,17 @@ function Dashboard({}: DashboardProps): ReactElement {
           marginBottom={["3", "0"]}
         >
           {currentReservations.map((r) => (
-            <ReservationRow reservation={r} />
+            <ReservationRow reservation={r} key={r.from + r.username} />
           ))}
         </Section>
         <Section title="Budouci">
           {upcomingReservations.map((r) => (
-            <ReservationRow reservation={r} />
+            <ReservationRow reservation={r} key={r.from + r.username} />
           ))}
         </Section>
       </Stack>
-      <CTA />
+      <CTA onClick={() => modalRef.current?.show()} />
+      <CreateReservationModal ref={modalRef} />
     </>
   );
 }
