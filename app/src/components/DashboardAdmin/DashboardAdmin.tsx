@@ -1,15 +1,12 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
 import React, { ReactElement, useRef, useState } from "react";
-import { parseISO, formatISO } from "date-fns";
 
-import { ReservationRow } from "components/ReservationRow";
-import { Reservation, RESERVATION } from "models/Reservation";
-import { Section } from "components/Section";
-import { dateToText } from "utils/date";
+import { RESERVATION } from "models/Reservation";
 import { CTA } from "components/CTA";
 import { CreateReservationModal } from "components/CreateReservationModal";
 import { useGetAllUsers } from "utils/networking";
-import { useMediaQuery } from "@chakra-ui/media-query";
+import { ParkingLot } from "components/ParkingLot";
+import { ReservationList } from "components/ReservationList";
 
 export interface DashboardAdminProps {}
 
@@ -17,16 +14,6 @@ function DashboardAdmin({}: DashboardAdminProps): ReactElement {
   const [isBig, setIsBig] = useState(false);
   const modalRef = useRef<any>();
   const { response } = useGetAllUsers();
-  const [isLargetThanMobile] = useMediaQuery("(min-width: 40em)");
-
-  const days = RESERVATION.reduce((p, c) => {
-    const day = formatISO(c.from);
-    if (!p[day]) {
-      p[day] = [];
-    }
-    p[day].push(c);
-    return p;
-  }, {} as { [k: string]: Reservation[] });
 
   return (
     <>
@@ -48,26 +35,10 @@ function DashboardAdmin({}: DashboardAdminProps): ReactElement {
         </TabList>
         <TabPanels>
           <TabPanel width="100%">
-            {Object.entries(days).map(([date, day]) => (
-              <Section
-                key={date}
-                title={dateToText(parseISO(date))}
-                marginBottom="4"
-              >
-                {day.map((r) => (
-                  <ReservationRow
-                    key={r.from + r.username}
-                    reservation={r}
-                    singleRow={isLargetThanMobile}
-                    marginBottom="1"
-                    paddingY="1"
-                  />
-                ))}
-              </Section>
-            ))}
+            <ReservationList reservations={RESERVATION} />
           </TabPanel>
-          <TabPanel>
-            <p>two!</p>
+          <TabPanel width="100%">
+            <ParkingLot reservations={RESERVATION} />
           </TabPanel>
         </TabPanels>
       </Tabs>

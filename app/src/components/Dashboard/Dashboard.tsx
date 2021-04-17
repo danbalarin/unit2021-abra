@@ -52,19 +52,19 @@ function Dashboard({}: DashboardProps): ReactElement {
   return (
     <>
       <Stack
-        direction={["column", "row"]}
+        direction={["column", "column", "row"]}
         paddingTop="2"
         paddingX="4"
         width="100%"
         height="100%"
         display="flex"
-        justifyContent={["", "center"]}
-        alignItems={["", "flex-start"]}
+        justifyContent={["", "", "center"]}
+        alignItems={["", "", "flex-start"]}
       >
         <Section
           title="Aktualni"
-          marginRight={["0", "6"]}
-          marginBottom={["3", "0"]}
+          marginRight={["0", "", "6"]}
+          marginBottom={["3", "3", "0"]}
         >
           {currentReservations.map((r) => (
             <ReservationRow reservation={r} key={r.from + r.username} />

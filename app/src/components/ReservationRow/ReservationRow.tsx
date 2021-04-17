@@ -1,11 +1,11 @@
-import React, { ReactElement, useCallback, useRef } from "react";
+import React, { ReactElement, useCallback } from "react";
 import { Box, BoxProps } from "@chakra-ui/layout";
-import { IconButton, Text } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
 
 import { Reservation } from "models/Reservation";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { ConfirmDelete } from "components/ConfirmDelete";
 import { dateToText, timeRangeToText } from "utils/date";
+import { ReservationControls } from "components/ReservationControls";
+import useConfirmDelete from "utils/useConfirmDelete";
 
 export interface ReservationRowProps extends BoxProps {
   reservation: Reservation;
@@ -23,10 +23,10 @@ function ReservationRow({
   const onDeleteConfirm = useCallback(() => {
     console.log("delete");
   }, []);
-  const confirmRef = useRef<any>();
-  const onDelete = useCallback(() => {
-    confirmRef.current.show();
-  }, [confirmRef.current]);
+
+  const { ConfirmDelete, show: showDelete } = useConfirmDelete({
+    onDelete: onDeleteConfirm,
+  });
 
   const gridTemplateAreas = singleRow
     ? '"time name spotId controls"'
@@ -36,7 +36,7 @@ function ReservationRow({
     <Box
       display="grid"
       gridTemplateAreas={gridTemplateAreas}
-      width={singleRow ? "100%" : ["100%", "400px"]}
+      width={singleRow ? "100%" : ["100%", "100%", "400px"]}
       backgroundColor="gray.100"
       color="black"
       padding="2"
@@ -78,28 +78,8 @@ function ReservationRow({
       >
         {timeRangeToText(reservation.from, reservation.to)}
       </Text>
-      <Box
-        gridArea="controls"
-        display="flex"
-        justifyContent="flex-end"
-        textAlign="right"
-      >
-        <IconButton
-          aria-label="edit reservation"
-          variant="unstyled"
-          size="sm"
-          onClick={onEdit}
-          icon={<EditIcon height="1.5em" width="1.5em" />}
-        />
-        <IconButton
-          aria-label="delete reservation"
-          variant="unstyled"
-          size="sm"
-          onClick={onDelete}
-          icon={<DeleteIcon height="1.5em" width="1.5em" />}
-        />
-      </Box>
-      <ConfirmDelete ref={confirmRef} onConfirm={onDeleteConfirm} />
+      <ReservationControls onEdit={onEdit} onDelete={showDelete} />
+      {ConfirmDelete}
     </Box>
   );
 }
