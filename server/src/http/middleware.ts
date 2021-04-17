@@ -7,11 +7,7 @@ import { Config } from '../utils/config';
 
 export function applyMiddlewares(app: Express, config: Config) {
   app.use(morgan('tiny'));
-  app.use(json({ 
-    type(req) {
-      return true;
-    }
-  }));
+  app.use(json());
   app.use(helmet());
   app.use(cors());
   app.use('/flexibee', proxy(config.flexibee.proxyUrl));
