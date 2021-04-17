@@ -9,6 +9,7 @@ import { dateToText } from "utils/date";
 import { CTA } from "components/CTA";
 import { CreateReservationModal } from "components/CreateReservationModal";
 import { useGetAllUsers } from "utils/networking";
+import { useMediaQuery } from "@chakra-ui/media-query";
 
 export interface DashboardAdminProps {}
 
@@ -16,6 +17,7 @@ function DashboardAdmin({}: DashboardAdminProps): ReactElement {
   const [isBig, setIsBig] = useState(false);
   const modalRef = useRef<any>();
   const { response } = useGetAllUsers();
+  const [isLargetThanMobile] = useMediaQuery("(min-width: 40em)");
 
   const days = RESERVATION.reduce((p, c) => {
     const day = formatISO(c.from);
@@ -56,7 +58,7 @@ function DashboardAdmin({}: DashboardAdminProps): ReactElement {
                   <ReservationRow
                     key={r.from + r.username}
                     reservation={r}
-                    singleRow
+                    singleRow={isLargetThanMobile}
                     marginBottom="1"
                     paddingY="1"
                   />

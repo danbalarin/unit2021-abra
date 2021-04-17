@@ -83,6 +83,7 @@ function CreateReservationModal(
                 name="to"
                 value={values.to}
                 onChange={handleChange}
+                isRequired
               />
               <FormErrorMessage>{errors.to}</FormErrorMessage>
             </FormControl>
