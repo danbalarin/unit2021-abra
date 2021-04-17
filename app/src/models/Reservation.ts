@@ -1,40 +1,40 @@
 export interface Reservation {
   id?: number;
-  from: Date;
-  to: Date;
-  parkingSpotId: number;
-  username: string;
+  from: string;
+  to: string;
+  parkingPlaceId: number;
+  userId: number;
 }
 
 export const RESERVATION: Reservation[] = [
   {
-    username: "team5.recepcni",
+    userId: 56,
     from: new Date("2021-04-17T08:00:00+00:00"),
     to: new Date("2021-04-17T18:00:00+00:00"),
-    parkingSpotId: 105,
+    parkingPlaceId: 105,
   },
   {
-    username: "team5.recepcni",
+    userId: 56,
     from: new Date("2021-04-18T08:00:00+00:00"),
     to: new Date("2021-04-18T18:00:00+00:00"),
-    parkingSpotId: 105,
+    parkingPlaceId: 105,
   },
   {
-    username: "team5.user1",
+    userId: 41,
     from: new Date("2021-04-19T08:00:00+00:00"),
     to: new Date("2021-04-19T18:00:00+00:00"),
-    parkingSpotId: 104,
+    parkingPlaceId: 104,
   },
   {
-    username: "team5.manager1",
+    userId: 41,
     from: new Date("2021-04-19T08:00:00+00:00"),
     to: new Date("2021-04-19T18:00:00+00:00"),
-    parkingSpotId: 102,
+    parkingPlaceId: 102,
   },
   {
-    username: "team5.manager6",
+    userId: 41,
     from: new Date("2021-04-18T08:00:00+00:00"),
     to: new Date("2021-04-18T18:00:00+00:00"),
-    parkingSpotId: 106,
+    parkingPlaceId: 106,
   },
 ];

@@ -4,7 +4,7 @@ import React, { ReactElement, useRef, useState } from "react";
 import { RESERVATION } from "models/Reservation";
 import { CTA } from "components/CTA";
 import { CreateReservationModal } from "components/CreateReservationModal";
-import { useGetAllUsers } from "utils/networking";
+import { useGetAllReservations, useGetAllUsers } from "utils/networking";
 import { ParkingLot } from "components/ParkingLot";
 import { ReservationList } from "components/ReservationList";
 
@@ -13,7 +13,20 @@ export interface DashboardAdminProps {}
 function DashboardAdmin({}: DashboardAdminProps): ReactElement {
   const [isBig, setIsBig] = useState(false);
   const modalRef = useRef<any>();
-  const { response } = useGetAllUsers();
+  const { response: usersResponse } = useGetAllUsers();
+  const {
+    response: reservationsResponse,
+    error,
+    loading,
+  } = useGetAllReservations();
+
+  const reservationsWithUsername =
+    reservationsResponse &&
+    usersResponse &&
+    reservationsResponse.data.map((r) => ({
+      ...r,
+      user: usersResponse.data?.find((u) => u.id === r.userId),
+    }));
 
   return (
     <>
@@ -35,17 +48,17 @@ function DashboardAdmin({}: DashboardAdminProps): ReactElement {
         </TabList>
         <TabPanels>
           <TabPanel width="100%">
-            <ReservationList reservations={RESERVATION} />
+            <ReservationList reservations={reservationsWithUsername || []} />
           </TabPanel>
           <TabPanel width="100%">
-            <ParkingLot reservations={RESERVATION} />
+            <ParkingLot reservations={reservationsWithUsername || []} />
           </TabPanel>
         </TabPanels>
       </Tabs>
       <CTA onClick={() => modalRef.current?.show()} />
       <CreateReservationModal
         ref={modalRef}
-        users={response ? response.data || [] : []}
+        users={usersResponse ? usersResponse.data || [] : []}
       />
     </>
   );

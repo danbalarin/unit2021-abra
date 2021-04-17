@@ -11,6 +11,7 @@ export enum UserRole {
 export const ELEVATED_ROLES = [UserRole.RECEPCNI, UserRole.ADMIN];
 
 export interface User {
+  id?: number;
   username: string;
   name: string;
   lastname?: string;

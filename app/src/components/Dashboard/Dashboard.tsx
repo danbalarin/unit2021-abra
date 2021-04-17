@@ -6,11 +6,11 @@ import { isSameDay, isAfter, endOfToday, compareAsc } from "date-fns";
 import { RESERVATION } from "models/Reservation";
 import { Loading } from "components/Loading";
 import useGeneralStore from "state/general";
-import useRequest from "utils/useRequest";
 import { Section } from "components/Section";
 import { ReservationRow } from "components/ReservationRow";
 import { CTA } from "components/CTA";
 import { CreateReservationModal } from "components/CreateReservationModal";
+import { useGetAllReservations } from "utils/networking";
 
 export interface DashboardProps {}
 
@@ -21,8 +21,8 @@ function Dashboard({}: DashboardProps): ReactElement {
   const modalRef = useRef<any>();
   const toast = useToast();
 
-  const { loading, error } = useRequest("asdada");
-
+  const { response, error, loading } = useGetAllReservations();
+  console.log(response);
   const currentReservations = RESERVATION.filter((d) =>
     isSameDay(d.from, Date.now())
   );
@@ -67,12 +67,12 @@ function Dashboard({}: DashboardProps): ReactElement {
           marginBottom={["3", "3", "0"]}
         >
           {currentReservations.map((r) => (
-            <ReservationRow reservation={r} key={r.from + r.username} />
+            <ReservationRow reservation={r} key={r.from + r.userId} />
           ))}
         </Section>
         <Section title="Budouci">
           {upcomingReservations.map((r) => (
-            <ReservationRow reservation={r} key={r.from + r.username} />
+            <ReservationRow reservation={r} key={r.from + r.userId} />
           ))}
         </Section>
       </Stack>

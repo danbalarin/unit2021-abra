@@ -22,10 +22,10 @@ function ParkingLot({ reservations }: ParkingLotProps): ReactElement {
   );
 
   const reservationsBySpotId = reservations.reduce((acc, r) => {
-    if (!acc[r.parkingSpotId]) {
-      acc[r.parkingSpotId] = [];
+    if (!acc[r.parkingPlaceId]) {
+      acc[r.parkingPlaceId] = [];
     }
-    acc[r.parkingSpotId].push(r);
+    acc[r.parkingPlaceId].push(r);
     return acc;
   }, {} as { [k: string]: Reservation[] });
 

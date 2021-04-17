@@ -28,11 +28,15 @@ function ParkingSpot({
 
   const isReserved = reservations.reduce(
     (acc, r) =>
-      acc || isWithinInterval(new Date(), { start: r.from, end: r.to }),
+      acc ||
+      isWithinInterval(new Date(), {
+        start: new Date(r.from),
+        end: new Date(r.to),
+      }),
     false
   );
 
-  const isOccupied = Math.random() > 0.9;
+  const isOccupied = false && Math.random() > 0.9;
 
   const reservedColor = {
     dark: "orange.500",

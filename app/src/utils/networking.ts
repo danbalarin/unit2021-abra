@@ -1,5 +1,6 @@
 import ky from "ky";
 import { AllUsersProprietaryResponse } from "models/AllUsersResponse";
+import { ReservationsResponse } from "models/ReservationsResponse";
 import {
   UserDetailResponse,
   userDetailResponseToUser,
@@ -8,34 +9,41 @@ import useUserStore, { UserState } from "state/user";
 import { GetState } from "zustand";
 import useRequest from "./useRequest";
 
+const hooks = {
+  beforeRequest: [
+    (req: Request) => {
+      const { sessionId } = useUserStore.getState();
+      if (sessionId) {
+        req.headers.append("X-authSessionId", sessionId);
+      }
+      return req;
+    },
+    // (req) => {
+    //   const { username, password } = useUserStore.getState();
+    //   console.log(username, password);
+    //   if (username && password) {
+    //     req.headers.append(
+    //       "Authorization",
+    //       `Basic ${btoa(`${username}:${password}`)}`
+    //     );
+    //   }
+    //   return req;
+    // },
+    (req: Request) => {
+      req.headers.append("Content-Type", "text/plain; charset=utf-8");
+      return req;
+    },
+  ],
+};
+
 export const kyInstance = ky.create({
   prefixUrl: "https://rezervace.flexibee.eu/v2/",
-  hooks: {
-    beforeRequest: [
-      (req) => {
-        const { sessionId } = useUserStore.getState();
-        if (sessionId) {
-          req.headers.append("X-authSessionId", sessionId);
-        }
-        return req;
-      },
-      // (req) => {
-      //   const { username, password } = useUserStore.getState();
-      //   console.log(username, password);
-      //   if (username && password) {
-      //     req.headers.append(
-      //       "Authorization",
-      //       `Basic ${btoa(`${username}:${password}`)}`
-      //     );
-      //   }
-      //   return req;
-      // },
-      (req) => {
-        req.headers.append("Content-Type", "text/plain; charset=utf-8");
-        return req;
-      },
-    ],
-  },
+  hooks,
+});
+
+export const kyInstanceProprietary = ky.create({
+  prefixUrl: "http://157.90.233.5:8080/",
+  hooks,
 });
 
 export const throwOnSoftError = async (response: any) => {
@@ -78,8 +86,18 @@ export const useGetAllUsers = () => {
   //   response: request.response && userDetailResponseToUser(request.response),
   // };
 
-  return useRequest<AllUsersProprietaryResponse>(
-    "http://157.90.233.5:8080/users",
-    { prefixUrl: "" }
-  );
+  return useRequest<AllUsersProprietaryResponse>("users", {}, true);
+};
+
+export const useGetAllReservations = () => {
+  // const request = useRequest<AllUsersResponse>(
+  //   "c/rezervace5/uzivatel.json?limit=0&detail=custom:id,kod,email,prijmeni,jmeno,role"
+  // );
+  // return {
+  //   loading: request.loading,
+  //   error: request.error,
+  //   response: request.response && userDetailResponseToUser(request.response),
+  // };
+
+  return useRequest<ReservationsResponse>("reservations", {}, true);
 };

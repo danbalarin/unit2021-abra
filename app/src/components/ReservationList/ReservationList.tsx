@@ -22,15 +22,14 @@ function ReservationList({ reservations }: ReservationListProps): ReactElement {
   const days = reservations
     .filter(
       (r) =>
-        r.username.toLowerCase().includes(value.toLowerCase()) ||
-        r.parkingSpotId.toString().includes(value.toLowerCase())
+        r.userId.toString().includes(value.toLowerCase()) ||
+        r.parkingPlaceId.toString().includes(value.toLowerCase())
     )
     .reduce((p, c) => {
-      const day = formatISO(c.from);
-      if (!p[day]) {
-        p[day] = [];
+      if (!p[c.from]) {
+        p[c.from] = [];
       }
-      p[day].push(c);
+      p[c.from].push(c);
       return p;
     }, {} as { [k: string]: Reservation[] });
 
@@ -43,10 +42,10 @@ function ReservationList({ reservations }: ReservationListProps): ReactElement {
         </FormControl>
       </Stack>
       {Object.entries(days).map(([date, day]) => (
-        <Section key={date} title={dateToText(parseISO(date))} marginBottom="4">
+        <Section key={date} title={dateToText(date)} marginBottom="4">
           {day.map((r) => (
             <ReservationRow
-              key={r.from + r.username}
+              key={r.from + r.userId}
               reservation={r}
               singleRow={isLargetThanMobile}
               marginBottom="1"

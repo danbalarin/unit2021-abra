@@ -6,9 +6,10 @@ import { Reservation } from "models/Reservation";
 import { dateToText, timeRangeToText } from "utils/date";
 import { ReservationControls } from "components/ReservationControls";
 import useConfirmDelete from "utils/useConfirmDelete";
+import { User } from "models/User";
 
 export interface ReservationRowProps extends BoxProps {
-  reservation: Reservation;
+  reservation: Reservation & { user?: User };
   singleRow?: boolean;
 }
 
@@ -56,7 +57,7 @@ function ReservationRow({
           alignItems="center"
           justifyContent="flex-start"
         >
-          {reservation.username}
+          {reservation.user?.name}
         </Text>
       )}
       <Text
@@ -67,7 +68,7 @@ function ReservationRow({
         justifyContent="flex-end"
         alignItems="center"
       >
-        P-{reservation.parkingSpotId}
+        P-{reservation.parkingPlaceId}
       </Text>
       <Text
         gridArea="time"
