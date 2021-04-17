@@ -35,6 +35,8 @@ export default class ReservationsController {
     const from: string = String(req.body.from);
     const userId: number | null = req.body.userId ? Number.parseInt(req.body.userId) : null
 
+    console.log("Creating:", {to, from, userId});
+
     if (userId != null) {
       if (!res.locals.user.isAdmin()) {
         return res.status(403).json({
