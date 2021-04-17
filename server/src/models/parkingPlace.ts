@@ -52,13 +52,6 @@ export default class ParkingPlace {
   }
 
   getConflicts(from: Date, to: Date, ignoreReservationId?: number): Reservation[] | false {
-    if (this.isOwnedPlace()) {
-      const release = this.releases.find(release => release.from <= from && to >= release.to);
-      if (!release) {
-        return false;
-      }
-    }
-
     return this.getReservations()
       .filter(reservation => {
         return reservation.conflictsWithTimeRange(from, to) && reservation.id !== ignoreReservationId;

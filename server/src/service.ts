@@ -7,7 +7,6 @@ import ParkingPlacesBusiness from './business/parkingPlaces';
 import ReservationsBusiness from './business/reservations';
 import SensorsBusiness from './business/sensors';
 import UsersBusiness from './business/users';
-import ParkingPlacesController from './controllers/parkingPlaces';
 import ReservationsController from './controllers/reservations';
 import UsersController from './controllers/users';
 import { createServer } from './http/server';
@@ -40,7 +39,6 @@ export default class ParkingService {
 
   private reservationsController: ReservationsController;
   private usersController: UsersController;
-  private parkingPlacesController: ParkingPlacesController;
   
   constructor() {
     
@@ -115,7 +113,6 @@ export default class ParkingService {
   async initControllers() {
     this.usersController = new UsersController({ bc: this.usersBusiness });
     this.reservationsController = new ReservationsController({ bc: this.reservationsBusiness });
-    this.parkingPlacesController = new ParkingPlacesController({ bc: this.parkingPlacesBusiness });
   }
 
 
@@ -125,9 +122,5 @@ export default class ParkingService {
 
   public getUsersController(): UsersController {
     return this.usersController;
-  }
-
-  public getParkingPlacesController(): ParkingPlacesController {
-    return this.parkingPlacesController;
   }
 }

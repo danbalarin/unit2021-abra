@@ -32,7 +32,6 @@ export default class SensorsBusiness implements SensorsBusinessInterface {
 
   private async processChange(change: SensorHistory) {
     const reservation = await this.bcReservations.getByPlaceIdAndDateTime(change.place, new Date(change.modified));
-    const reservationStart = await this.bcReservations.getByPlaceIdAndDateTime(change.place, new Date(change.modified));
 
     if (change.value === false) {
       // User departed
@@ -84,8 +83,15 @@ export default class SensorsBusiness implements SensorsBusinessInterface {
     });
   }
 
-  async isParkingPlaceOccupied(code: number): Promise<Boolean> {
+  async isParkingPlaceOccupied(code: number, from?: Date, to?: Date): Promise<Boolean> {
     const list = await this.api.listActual();
+
+    if (from && to) {
+      const now = new Date();
+
+      // Time range doesn't apply to now, so lets not decide based on current occupiency
+      if (now <= from || now >= to) return false;
+    }
 
     if (!list[code]) {
       throw new Error(`Parking place ${code} doesn't exist!`);

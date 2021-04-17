@@ -9,6 +9,7 @@ export interface ReservationPayload {
   to: Date,
   parkingPlace: ParkingPlace,
   user: User,
+  isOwner: boolean,
 }
 
 export interface ReservationResponse {
@@ -44,7 +45,7 @@ export default class ReservationApi {
     return events as ReservationResponse[];
   }
   
-  async create({ user, from, to, parkingPlace }: ReservationPayload): Promise<number> {
+  async create({ user, from, to, parkingPlace, isOwner }: ReservationPayload): Promise<number> {
     const eventData = {
       "typAkt": "code:UDÁLOST",
       "zodpPrac": `code:${user.username}`,
@@ -52,7 +53,7 @@ export default class ReservationApi {
       "dokonceni": to.toISOString(),
       "predmet": `${user.name || user.username} ${formatDateToTime(from)} - ${formatDateToTime(to)}`,
       "zakazka": `code:${parkingPlace.code}`,
-      "volno": false
+      "volno": isOwner
     };
 
     const res = await axios.put(`${this.config.flexibee.companyUrl}/udalost.json`, {

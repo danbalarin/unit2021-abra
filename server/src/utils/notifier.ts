@@ -1,5 +1,5 @@
 import { Config } from './config';
-import sgMail from '@sendgrid/mail';
+//import sgMail from '@sendgrid/mail';
 
 export enum NotifyMessage {
   USER_ON_UNRESERVED_PLACE = "USER_ON_UNRESERVED_PLACE"
@@ -26,7 +26,7 @@ export default class Notifier {
     config: Config 
   }) {
     Object.assign(this, options);
-    sgMail.setApiKey(this.config.notifications.sendgrid.apiKey);
+    //sgMail.setApiKey(this.config.notifications.sendgrid.apiKey);
   }
 
   async sendEmail(email: string, msgKey: NotifyMessage): Promise<void> {
@@ -47,7 +47,7 @@ export default class Notifier {
       html: `<strong style='font-family: "Comic Sans MS", "Comic Sans", cursive;>${msgData.message}</strong>`,
     };
 
-    try {
+    /*try {
       await sgMail.send(msg);
     } catch (error) {
       console.error(error);
@@ -55,6 +55,6 @@ export default class Notifier {
       if (error.response) {
         console.error(error.response.body)
       }
-    }
+    }*/
   }
 }
