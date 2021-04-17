@@ -31,6 +31,8 @@ export default class ReservationsController {
   }
 
   async create(req: Request, res: Response) {
+    console.log(req.body);
+
     const to: string = String(req.body.to);
     const from: string = String(req.body.from);
     const userId: number | null = req.body.userId ? Number.parseInt(req.body.userId) : null
