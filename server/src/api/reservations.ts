@@ -33,6 +33,16 @@ export default class ReservationApi {
   }) {
     Object.assign(this, options);
   }
+
+  async list(): Promise<ReservationResponse[]> {
+    const customColumns = "id,lastUpdate,zahajeni,dokonceni,predmet,zodpPrac,zakazka,volno,typAkt";
+    const req = await axios.get(`${this.config.flexibee.companyUrl}/udalost.json?limit=0&detail=custom:${customColumns}`, {
+      headers: this.auth.getBasicAuthHeader()
+    });
+
+    const events = req.data.winstrom.udalost;
+    return events as ReservationResponse[];
+  }
   
   async create({ user, from, to, parkingPlace }: ReservationPayload): Promise<number> {
     const eventData = {
@@ -45,8 +55,6 @@ export default class ReservationApi {
       "volno": false
     };
 
-    console.log(eventData);
-
     const res = await axios.put(`${this.config.flexibee.companyUrl}/udalost.json`, {
       "winstrom": {
         "udalost": [
@@ -58,6 +66,7 @@ export default class ReservationApi {
         'Accept': 'application/json'
       }, this.auth.getBasicAuthHeader())
     }).catch(err => {
+      console.error(eventData);
       throw new Error(err.response.statusText);
     });
 
@@ -73,14 +82,14 @@ export default class ReservationApi {
     return Number.parseInt(res.data.winstrom.results[0].id);
   }
 
-  async list(): Promise<ReservationResponse[]> {
-    const customColumns = "id,lastUpdate,zahajeni,dokonceni,predmet,zodpPrac,zakazka,volno,typAkt";
-    const req = await axios.get(`${this.config.flexibee.companyUrl}/udalost.json?limit=0&detail=custom:${customColumns}`, {
-      headers: this.auth.getBasicAuthHeader()
+  async remove(id: number): Promise<void> {
+    const res = await axios.delete(`${this.config.flexibee.companyUrl}/udalost/${id}.json`, {
+      headers: Object.assign({
+        'Accept': 'application/json'
+      }, this.auth.getBasicAuthHeader())
+    }).catch(err => {
+      throw new Error(err.response.statusText);
     });
-
-    const events = req.data.winstrom.udalost;
-    return events as ReservationResponse[];
   }
 
 }

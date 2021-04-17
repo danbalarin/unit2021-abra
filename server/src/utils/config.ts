@@ -11,6 +11,9 @@ export type Config = {
     username: string,
     password: string,
     companyUrl: string,
+  },
+  sensors: {
+    apiUrl: string,
   }
 };
 
@@ -36,6 +39,9 @@ export function loadEnvConfig(): Config {
       username: requireEnv("FLEXIBEE_USERNAME"),
       password: requireEnv("FLEXIBEE_PASSWORD"),
       companyUrl: requireEnv("FLEXIBEE_COMPANY_URL"),
+    },
+    sensors: {
+      apiUrl: requireEnv("SENSORS_API_URL"),
     }
   };
 }

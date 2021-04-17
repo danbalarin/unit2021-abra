@@ -32,8 +32,14 @@ export default class Reservation {
   }
 
   conflictsWithTimeRange(from: Date, to: Date): boolean {
-    const reserve = 100; // in ms
-    return this.from <= to && this.to >= from;
+    const reserve = 20; // in ms
+
+    const f1 = new Date(this.from.getTime() - reserve);
+    const f2 = new Date(from.getTime() - reserve);
+    const t1 = new Date(this.to.getTime() + reserve);
+    const t2 = new Date(to.getTime() + reserve);
+
+    return f1 < t2 && t1 > f2;
   }
 
   moveToPlace(parkingPlace: ParkingPlace): void {

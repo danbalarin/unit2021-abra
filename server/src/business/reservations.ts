@@ -110,6 +110,10 @@ export default class ReservationsBusiness {
   }
 
   async remove(reservation: Reservation): Promise<void> {
+    if (reservation.id) {
+      this.api.remove(reservation.id);
+    }
+    
     reservation.parkingPlace.removeReservation(reservation);
     this.repoReservations.remove(reservation);
   }
