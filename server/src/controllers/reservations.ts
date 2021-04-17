@@ -81,7 +81,6 @@ export default class ReservationsController {
 
     const to: string | null = String(req.body.to) || null;
     const from: string | null = String(req.body.from) || null;
-    const placeId: number | null = req.body.placeId ? Number.parseInt(req.body.placeId) : null;
 
     if (reservation.user.id !== res.locals.user.id) {
       if (!res.locals.user.isAdmin()) {
@@ -96,7 +95,6 @@ export default class ReservationsController {
       await this.bc.edit(reservation, {
         to: new Date(to),
         from: new Date(from),
-        placeId: placeId,
       });
 
       return res.json({

@@ -120,9 +120,8 @@ export default class ReservationsBusiness implements ReservationsBusinessInterfa
   }
   
   async edit(reservation: Reservation, updates: {
-    from?: Date,
-    to?: Date,
-    placeId?: number,
+    from: Date,
+    to: Date,
   }): Promise<Reservation> {
     const parkingPlace = await this.getAvailableParkingPlace(updates.from, updates.to, reservation);
 
@@ -130,14 +129,10 @@ export default class ReservationsBusiness implements ReservationsBusinessInterfa
       throw ERR_NO_PLACE_AVAILABLE;
     }
 
-    try {
-      await this.api.update(reservation.id, updates);
+    await this.api.update(reservation.id, updates);
 
-      await this.repoReservations.insert(reservation);
-    } catch (e) {
-      this.remove(reservation);
-      throw e;
-    }
+    reservation.setFrom(updates.from);
+    reservation.setTo(updates.to);
 
     return reservation;
   }
