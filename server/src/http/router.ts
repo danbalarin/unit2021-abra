@@ -12,5 +12,6 @@ export function applyRoutes(app: Express, controllers: ControllersInterface) {
 
   app.get("/reservations", validate, reservations.list.bind(reservations));
   app.put("/reservations", validate, reservations.create.bind(reservations));
+  app.post("/reservations/:reservationId", validate, reservations.edit.bind(reservations));
   app.delete("/reservations/:reservationId", validate, reservations.remove.bind(reservations));
 }

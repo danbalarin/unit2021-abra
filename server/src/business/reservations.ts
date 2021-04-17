@@ -30,12 +30,9 @@ export default class ReservationsBusiness implements ReservationsBusinessInterfa
     if (this.isFetched) return;
     
     let reservationsRaw = await this.api.list();
-    console.log(reservationsRaw);
     const reservations = await Promise.all(reservationsRaw.map(async reservationRaw => {
       const username = reservationRaw.zodpPrac.replace(/^code:/, "");
       const parkingPlaceCode = Number.parseInt(reservationRaw.zakazka.replace(/^code:/, ""));
-
-      console.log(parkingPlaceCode);
       
       const user = await this.repoUsers.findByUsername(username);
       const parkingPlace = await this.repoParkingPlaces.findByCode(parkingPlaceCode);
@@ -48,7 +45,11 @@ export default class ReservationsBusiness implements ReservationsBusinessInterfa
         to: new Date(reservationRaw.dokonceni),
       });
 
-      parkingPlace.addReservation(reservation);
+      if (reservationRaw.volno) {
+        parkingPlace.addRelease(reservation);
+      } else {
+        parkingPlace.addReservation(reservation);
+      }
 
       return reservation;
     }))
@@ -70,8 +71,12 @@ export default class ReservationsBusiness implements ReservationsBusinessInterfa
     return place.getReservations().find(reservation => reservation.from >= date && reservation.to <= date);
   }
 
-  async list(): Promise<Reservation[]> {
+  async listAll(): Promise<Reservation[]> {
     return await this.repoReservations.findAll();
+  }
+  
+  async listUsers(user: User): Promise<Reservation[]> {
+    return await this.repoReservations.findByUserId(user.id);
   }
   
   async create({ from, to, userId }: {
@@ -83,7 +88,7 @@ export default class ReservationsBusiness implements ReservationsBusinessInterfa
     const parkingPlace = await this.getAvailableParkingPlace(from, to);
 
     if (parkingPlace === null) {
-      throw new Error(ERR_NO_PLACE_AVAILABLE);
+      throw ERR_NO_PLACE_AVAILABLE;
     }
 
     const reservation = new Reservation({
@@ -100,9 +105,33 @@ export default class ReservationsBusiness implements ReservationsBusinessInterfa
         to: to,
         user: user,
         parkingPlace: parkingPlace,
+        isOwner: user.id === parkingPlace.ownerId
       });
 
       reservation.setId(id);
+
+      await this.repoReservations.insert(reservation);
+    } catch (e) {
+      this.remove(reservation);
+      throw e;
+    }
+
+    return reservation;
+  }
+  
+  async edit(reservation: Reservation, updates: {
+    from?: Date,
+    to?: Date,
+    placeId?: number,
+  }): Promise<Reservation> {
+    const parkingPlace = await this.getAvailableParkingPlace(updates.from, updates.to, reservation);
+
+    if (parkingPlace === null) {
+      throw ERR_NO_PLACE_AVAILABLE;
+    }
+
+    try {
+      await this.api.update(reservation.id, updates);
 
       await this.repoReservations.insert(reservation);
     } catch (e) {
@@ -130,11 +159,11 @@ export default class ReservationsBusiness implements ReservationsBusinessInterfa
     this.repoReservations.remove(reservation);
   }
 
-  async getAvailableParkingPlace(from: Date, to: Date): Promise<ParkingPlace | null> {
+  async getAvailableParkingPlace(from: Date, to: Date, originalReservation?: Reservation): Promise<ParkingPlace | null> {
     const parkingPlaces = await this.repoParkingPlaces.findAll();
 
     for (const parkingPlace of parkingPlaces) {
-      const conflicts = parkingPlace.getConflicts(from, to);
+      const conflicts = parkingPlace.getConflicts(from, to, originalReservation?.id);
       if (conflicts !== false && conflicts.length === 0) {
         return parkingPlace;
       }

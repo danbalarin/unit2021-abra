@@ -12,13 +12,19 @@ export default interface ReservationsBusinessInterface {
   fetch(): Promise<Reservation[]>;
   getById(id: number): Promise<Reservation | null>;
   getByPlaceIdAndDateTime(placeId: number, date: Date): Promise<Reservation | null>;
-  list(): Promise<Reservation[]>;
+  listAll(): Promise<Reservation[]>;
+  listUsers(user: User): Promise<Reservation[]>;
   create({ from, to, userId }: {
     from: Date,
     to: Date,
     userId?: number,
   }): Promise<Reservation>;
+  edit(reservation: Reservation, changes: {
+    from?: Date,
+    to?: Date,
+    placeId?: number,
+  }): Promise<Reservation>;
   endNow(reservation: Reservation): Promise<void>;
   remove(reservation: Reservation): Promise<void>;
-  getAvailableParkingPlace(from: Date, to: Date): Promise<ParkingPlace | null>;
+  getAvailableParkingPlace(from: Date, to: Date, originalReservation?: Reservation): Promise<ParkingPlace | null>;
 }

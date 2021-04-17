@@ -6,11 +6,12 @@ export default class Reservation {
   private _id?: number;
   private _parkingPlace: ParkingPlace;
   readonly user: User;
-  readonly from: Date;
+  private _from: Date;
   private _to: Date;
 
   public get id(): number { return this._id; }
   public get parkingPlace(): ParkingPlace { return this._parkingPlace; }
+  public get from(): Date { return this._from; }
   public get to(): Date { return this._to; }
 
   constructor(options: {
@@ -22,13 +23,17 @@ export default class Reservation {
   }) {
     this._id = options.id;
     this.user = options.user;
-    this.from = options.from;
+    this._from = options.from;
     this._to = options.to;
     this._parkingPlace = options.parkingPlace;
     this._parkingPlace.addReservation(this);
   }
 
   setId(id: number) {
+    if (this._id) {
+      throw new Error("Id was already set.");
+    }
+
     this._id = id;
   }
 
@@ -47,6 +52,10 @@ export default class Reservation {
     this._parkingPlace.removeReservation(this);
     parkingPlace.addReservation(this);
     this._parkingPlace = parkingPlace;
+  }
+
+  setFrom(from: Date): void {
+    this._from = from;
   }
 
   setTo(to: Date): void {

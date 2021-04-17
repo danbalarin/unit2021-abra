@@ -11,6 +11,10 @@ export default class ReservationsRepository {
     return this.storage[id] ?? null;
   }
 
+  async findByUserId(userId: number): Promise<Reservation[]> {
+    return Object.values(this.storage).filter(reservation => reservation.user.id === userId);
+  }
+
   async findAll(): Promise<Reservation[]> {
     return Object.values(this.storage);
   }
