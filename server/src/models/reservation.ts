@@ -32,10 +32,8 @@ export default class Reservation {
   }
 
   conflictsWithTimeRange(from: Date, to: Date): boolean {
-    return (
-      (this.from > from && this.from < to) ||
-      (from > this.from && from < this.to)
-    );
+    const reserve = 100; // in ms
+    return this.from <= to && this.to >= from;
   }
 
   moveToPlace(parkingPlace: ParkingPlace): void {
@@ -47,7 +45,7 @@ export default class Reservation {
   toJSON(): Object {
     return {
       id: this.id,
-      parkingPlaceId: this.parkingPlace.name,
+      parkingPlaceId: this.parkingPlace.code,
       userId: this.user.id,
       from: this.from,
       to: this.to,

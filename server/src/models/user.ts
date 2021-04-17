@@ -2,6 +2,7 @@ export enum UserRole {
   EMPLOYEE = "code:ZAMESTNANEC",
   MANAGER = "code:MANAGER",
   ADMIN = "code:ADMIN",
+  RECEPTIONIST = "code:RECEPCNI",
   VISITOR = "code:JENCIST",
 }
 
@@ -23,7 +24,7 @@ export default class User {
   }
 
   isAdmin(): boolean {
-    return this.role === UserRole.ADMIN;
+    return this.role === UserRole.ADMIN || this.role === UserRole.RECEPTIONIST;
   }
 
   isManager(): boolean {

@@ -11,6 +11,10 @@ export default class ParkingPlacesRepository {
     return this.storage[id];
   }
 
+  async findByCode(code: number): Promise<ParkingPlace | null> {
+    return Object.values(this.storage).find(parkingPlace => parkingPlace.code === code);
+  }
+
   async findAll(): Promise<ParkingPlace[]> {
     return Object.values(this.storage);
   }

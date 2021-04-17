@@ -41,7 +41,7 @@ export default class ReservationApi {
       "zahajeni": from.toISOString(),
       "dokonceni": to.toISOString(),
       "predmet": `${user.name || user.username} ${formatDateToTime(from)} - ${formatDateToTime(to)}`,
-      "zakazka": `code:${parkingPlace.name}`,
+      "zakazka": `code:${parkingPlace.code}`,
       "volno": false
     };
 
@@ -74,7 +74,8 @@ export default class ReservationApi {
   }
 
   async list(): Promise<ReservationResponse[]> {
-    const req = await axios.get(`${this.config.flexibee.companyUrl}/udalost.json?limit=0`, {
+    const customColumns = "id,lastUpdate,zahajeni,dokonceni,predmet,zodpPrac,zakazka,volno,typAkt";
+    const req = await axios.get(`${this.config.flexibee.companyUrl}/udalost.json?limit=0&detail=custom:${customColumns}`, {
       headers: this.auth.getBasicAuthHeader()
     });
 

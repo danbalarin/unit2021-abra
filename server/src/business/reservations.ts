@@ -32,15 +32,14 @@ export default class ReservationsBusiness {
     
     let reservationsRaw = await this.api.list();
     console.log(reservationsRaw);
-    reservationsRaw = reservationsRaw.filter(reservationRaw => {
-      return reservationRaw.zakazka && reservationRaw.zodpPrac;
-    });
     const reservations = await Promise.all(reservationsRaw.map(async reservationRaw => {
       const username = reservationRaw.zodpPrac.replace(/^code:/, "");
-      const parkingPlaceId = Number.parseInt(reservationRaw.zakazka.replace(/^code:/, ""));
+      const parkingPlaceCode = Number.parseInt(reservationRaw.zakazka.replace(/^code:/, ""));
+
+      console.log(parkingPlaceCode);
       
       const user = await this.repoUsers.findByUsername(username);
-      const parkingPlace = await this.repoParkingPlaces.findById(parkingPlaceId);
+      const parkingPlace = await this.repoParkingPlaces.findByCode(parkingPlaceCode);
 
       const reservation = new Reservation({
         id: reservationRaw.id,

@@ -8,7 +8,7 @@ export default class ReservationsRepository {
   }
 
   async findById(id: number): Promise<Reservation | null> {
-    return this.storage[id];
+    return this.storage[id] ?? null;
   }
 
   async findAll(): Promise<Reservation[]> {

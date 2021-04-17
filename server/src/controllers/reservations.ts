@@ -63,7 +63,7 @@ export default class ReservationsController {
   }
 
   async remove(req: Request, res: Response) {
-    const reservationId: number = req.body.reservationId;
+    const reservationId: number = Number.parseInt(req.params.reservationId);
     const reservation = await this.bc.getById(reservationId);
 
     if (reservation === null) {

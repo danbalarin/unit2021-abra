@@ -2,14 +2,14 @@ import Reservation from "./reservation";
 
 export default class ParkingPlace {
   readonly id: number;
-  readonly name: number;
+  readonly code: number;
   readonly ownerId?: number;
 
   private reservations: Reservation[];
 
   constructor(options: {
     id: number,
-    name: number,
+    code: number,
     ownerId: number,
   }) {
     Object.assign(this, options);
@@ -39,7 +39,7 @@ export default class ParkingPlace {
 
   toJSON(): Object {
     return {
-      id: this.name,
+      id: this.code,
       ownerId: this.ownerId
     };
   }
