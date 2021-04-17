@@ -5,10 +5,9 @@ import User from '../models/user';
 import ParkingPlace from '../models/parkingPlace';
 import UsersRepository from '../repositories/inmemory/users';
 import ParkingPlacesRepository from '../repositories/inmemory/parkingPlaces';
+import ReservationsBusinessInterface, { ERR_NO_PLACE_AVAILABLE } from './reservationsInterface';
 
-export const ERR_NO_PLACE_AVAILABLE = "No places are available for this time range."; 
-
-export default class ReservationsBusiness {
+export default class ReservationsBusiness implements ReservationsBusinessInterface {
 
   private api: ReservationsAPI;
   private repoReservations: ReservationsRepository;
@@ -66,6 +65,11 @@ export default class ReservationsBusiness {
     return await this.repoReservations.findById(id);
   }
 
+  async getByPlaceIdAndDateTime(placeId: number, date: Date): Promise<Reservation | null> {
+    const place = await this.repoParkingPlaces.findByCode(placeId);
+    return place.getReservations().find(reservation => reservation.from >= date && reservation.to <= date);
+  }
+
   async list(): Promise<Reservation[]> {
     return await this.repoReservations.findAll();
   }
@@ -109,11 +113,19 @@ export default class ReservationsBusiness {
     return reservation;
   }
 
+  async endNow(reservation: Reservation) {
+    const now = new Date();
+    reservation.setTo(now);
+    this.api.update(reservation.id, {
+      to: now
+    });
+  }
+
   async remove(reservation: Reservation): Promise<void> {
     if (reservation.id) {
       this.api.remove(reservation.id);
     }
-    
+
     reservation.parkingPlace.removeReservation(reservation);
     this.repoReservations.remove(reservation);
   }
@@ -123,7 +135,7 @@ export default class ReservationsBusiness {
 
     for (const parkingPlace of parkingPlaces) {
       const conflicts = parkingPlace.getConflicts(from, to);
-      if (conflicts.length === 0) {
+      if (conflicts !== false && conflicts.length === 0) {
         return parkingPlace;
       }
     }

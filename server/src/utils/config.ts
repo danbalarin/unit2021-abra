@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv-flow';
 
-export type Config = {
+export interface Config {
   http: {
     port: number,
   },
@@ -13,9 +13,17 @@ export type Config = {
     companyUrl: string,
   },
   sensors: {
-    apiUrl: string,
+    apiUrlHistory: string,
+    apiUrlActual: string,
+    interval: number,
+  },
+  notifications: {
+    sendgrid: {
+      apiKey?: string,
+      emailFrom?: string,
+    }
   }
-};
+}
 
 function requireEnv(envName: string): string {
   if (!process.env[envName]) {
@@ -28,7 +36,7 @@ function requireEnv(envName: string): string {
 export function loadEnvConfig(): Config {
   dotenv.config();
 
-  return {
+  const config = {
     http: {
       port: Number.parseInt(requireEnv("HTTP_PORT")),
     },
@@ -41,7 +49,25 @@ export function loadEnvConfig(): Config {
       companyUrl: requireEnv("FLEXIBEE_COMPANY_URL"),
     },
     sensors: {
-      apiUrl: requireEnv("SENSORS_API_URL"),
+      apiUrlHistory: requireEnv("SENSORS_HISTORY_API_URL"),
+      apiUrlActual: requireEnv("SENSORS_ACTUAL_API_URL"),
+      interval: Number.parseInt(requireEnv("SENSORS_INTERVAL")),
+    },
+    notifications: {
+      sendgrid: {
+        apiKey: process.env.SENDGRID_API_KEY,
+        emailFrom: process.env.SENDGRID_EMAIL_FROM,
+      }
     }
   };
+
+  if (!config.notifications.sendgrid.apiKey) {
+    console.log("[SENDGRID] Is not activated, because you didn't specified 'SENDGRID_API_KEY'.");
+  }
+
+  if (config.notifications.sendgrid.apiKey && !config.notifications.sendgrid.emailFrom) {
+    throw new Error("[SENDGRID] You set 'SENDGRID_API_KEY', but didn't set 'SENDGRID_EMAIL_FROM'. That's illegal...");
+  }
+
+  return config;
 }
