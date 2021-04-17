@@ -4,7 +4,6 @@ import ControllersInterface from './interface';
 export function applyRoutes(app: Express, controllers: ControllersInterface) {
   const reservations = controllers.getReservationsController();
   const users = controllers.getUsersController();
-  const parkingPlaces = controllers.getParkingPlacesController();
 
   const validate = users.validate.bind(users);
 
