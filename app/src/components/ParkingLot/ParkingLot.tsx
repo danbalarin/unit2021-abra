@@ -1,14 +1,26 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { Reservation } from "models/Reservation";
 import { Stack } from "@chakra-ui/layout";
 import { PARKING_SLOTS } from "models/ParkingSlot";
 import { ParkingSpot } from "components/ParkingSpot";
+import { useGetParkingSlots } from "utils/networking";
+import { User } from "models/User";
 
 export interface ParkingLotProps {
-  reservations: Reservation[];
+  reservations: (Reservation & { user?: User })[];
+  onDelete: () => void;
 }
 
-function ParkingLot({ reservations }: ParkingLotProps): ReactElement {
+function ParkingLot({ reservations, onDelete }: ParkingLotProps): ReactElement {
+  const { response: parkingSlotAvailability, trigger } = useGetParkingSlots();
+  useEffect(() => {
+    const interval = setInterval(trigger, 10000);
+    trigger();
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   const [firstRow, secondRow] = PARKING_SLOTS.reduce(
     (acc, c, i) => {
       if (i < 10) {
@@ -37,6 +49,11 @@ function ParkingLot({ reservations }: ParkingLotProps): ReactElement {
             reservations={reservationsBySpotId[p.spotId]}
             id={p.spotId}
             isManager={p.isManager}
+            isAvailable={
+              (parkingSlotAvailability && parkingSlotAvailability[p.spotId]) ||
+              false
+            }
+            onDelete={onDelete}
           />
         ))}
       </Stack>
@@ -46,6 +63,11 @@ function ParkingLot({ reservations }: ParkingLotProps): ReactElement {
             reservations={reservationsBySpotId[p.spotId]}
             id={p.spotId}
             isManager={p.isManager}
+            isAvailable={
+              (parkingSlotAvailability && parkingSlotAvailability[p.spotId]) ||
+              false
+            }
+            onDelete={onDelete}
           />
         ))}
       </Stack>

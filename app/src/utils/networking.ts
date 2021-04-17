@@ -1,4 +1,4 @@
-import ky from "ky";
+import ky, { Options } from "ky";
 import { AllUsersProprietaryResponse } from "models/AllUsersResponse";
 import { ReservationsResponse } from "models/ReservationsResponse";
 import {
@@ -90,14 +90,32 @@ export const useGetAllUsers = () => {
 };
 
 export const useGetAllReservations = () => {
-  // const request = useRequest<AllUsersResponse>(
-  //   "c/rezervace5/uzivatel.json?limit=0&detail=custom:id,kod,email,prijmeni,jmeno,role"
-  // );
-  // return {
-  //   loading: request.loading,
-  //   error: request.error,
-  //   response: request.response && userDetailResponseToUser(request.response),
-  // };
-
   return useRequest<ReservationsResponse>("reservations", {}, true);
+};
+
+export const usePutReservation = (body?: Options["body"]) => {
+  return useRequest<{ success?: boolean }>(
+    "reservations",
+    { body, method: "put", headers: { "Content-Type": "application/json" } },
+    true,
+    true
+  );
+};
+
+export const useDeleteReservation = (id: number) => {
+  return useRequest<{ success?: boolean }>(
+    `reservations/${id}`,
+    { method: "delete" },
+    true,
+    true
+  );
+};
+
+export const useGetParkingSlots = () => {
+  return useRequest<{ [k: string]: boolean }>(
+    "https://rezervace.s3.eu-central-1.amazonaws.com/parking5.json",
+    { prefixUrl: "" },
+    false,
+    true
+  );
 };

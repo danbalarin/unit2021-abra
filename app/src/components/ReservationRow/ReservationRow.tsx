@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from "react";
+import React, { ReactElement, useCallback, useEffect } from "react";
 import { Box, BoxProps } from "@chakra-ui/layout";
 import { Text } from "@chakra-ui/react";
 
@@ -7,27 +7,34 @@ import { dateToText, timeRangeToText } from "utils/date";
 import { ReservationControls } from "components/ReservationControls";
 import useConfirmDelete from "utils/useConfirmDelete";
 import { User } from "models/User";
+import { useDeleteReservation } from "utils/networking";
 
 export interface ReservationRowProps extends BoxProps {
   reservation: Reservation & { user?: User };
   singleRow?: boolean;
+  onDelete?: () => void;
 }
 
 function ReservationRow({
   reservation,
   singleRow,
+  onDelete: refetch,
   ...props
 }: ReservationRowProps): ReactElement {
   const onEdit = useCallback(() => {
     console.log("edit");
   }, []);
-  const onDeleteConfirm = useCallback(() => {
-    console.log("delete");
-  }, []);
+  const { trigger: onDeleteConfirm, response } = useDeleteReservation(
+    reservation.id || 0
+  );
 
   const { ConfirmDelete, show: showDelete } = useConfirmDelete({
     onDelete: onDeleteConfirm,
   });
+
+  useEffect(() => {
+    response && response?.success && refetch && refetch();
+  }, [response]);
 
   const gridTemplateAreas = singleRow
     ? '"time name spotId controls"'

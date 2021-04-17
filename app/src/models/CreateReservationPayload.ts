@@ -3,12 +3,15 @@ import * as Yup from "yup";
 export interface CreateReservationPayload {
   from: string;
   to: string;
-  username?: string;
+  userId?: string;
 }
 
 export const createReservationValidationSchema = Yup.object({
   isManager: Yup.boolean(),
-  username: Yup.string(),
+  userId: Yup.string().when("isReceptionist", {
+    is: true,
+    then: Yup.string().required("Recepcni musi zadat uzivatele"),
+  }),
   from: Yup.date().required(),
   to: Yup.string()
     .required("Dobra trvani musi byt vyplnena")

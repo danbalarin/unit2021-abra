@@ -1,9 +1,8 @@
 import { Center, Stack } from "@chakra-ui/layout";
 import { useToast } from "@chakra-ui/toast";
-import React, { ReactElement, useEffect, useRef } from "react";
-import { isSameDay, isAfter, endOfToday, compareAsc } from "date-fns";
+import React, { ReactElement, useEffect, useMemo, useRef } from "react";
+import { isSameDay, isAfter, endOfToday, compareAsc, parseISO } from "date-fns";
 
-import { RESERVATION } from "models/Reservation";
 import { Loading } from "components/Loading";
 import useGeneralStore from "state/general";
 import { Section } from "components/Section";
@@ -21,14 +20,22 @@ function Dashboard({}: DashboardProps): ReactElement {
   const modalRef = useRef<any>();
   const toast = useToast();
 
-  const { response, error, loading } = useGetAllReservations();
-  console.log(response);
-  const currentReservations = RESERVATION.filter((d) =>
-    isSameDay(d.from, Date.now())
+  const { response, error, loading, trigger } = useGetAllReservations();
+
+  const currentReservations = useMemo(
+    () =>
+      ((response && response.data) || []).filter((d) =>
+        isSameDay(parseISO(d.from), Date.now())
+      ),
+    [response]
   );
-  const upcomingReservations = RESERVATION.filter((d) =>
-    isAfter(d.from, endOfToday())
-  ).sort((d1, d2) => compareAsc(d1.from, d2.from));
+  const upcomingReservations = useMemo(
+    () =>
+      ((response && response.data) || [])
+        .filter((d) => isAfter(parseISO(d.from), endOfToday()))
+        .sort((d1, d2) => compareAsc(parseISO(d1.from), parseISO(d2.from))),
+    [response]
+  );
 
   useEffect(() => {
     if (error) {
@@ -67,12 +74,20 @@ function Dashboard({}: DashboardProps): ReactElement {
           marginBottom={["3", "3", "0"]}
         >
           {currentReservations.map((r) => (
-            <ReservationRow reservation={r} key={r.from + r.userId} />
+            <ReservationRow
+              reservation={r}
+              key={r.from + r.userId}
+              onDelete={() => trigger()}
+            />
           ))}
         </Section>
         <Section title="Budouci">
           {upcomingReservations.map((r) => (
-            <ReservationRow reservation={r} key={r.from + r.userId} />
+            <ReservationRow
+              reservation={r}
+              key={r.from + r.userId}
+              onDelete={() => trigger()}
+            />
           ))}
         </Section>
       </Stack>

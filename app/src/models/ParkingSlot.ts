@@ -1,4 +1,8 @@
-export const PARKING_SLOTS: { spotId: number; isManager?: boolean }[] = [
+export const PARKING_SLOTS: {
+  spotId: number;
+  isManager?: boolean;
+  available?: boolean;
+}[] = [
   { spotId: 101, isManager: true },
   { spotId: 102, isManager: true },
   { spotId: 103, isManager: true },

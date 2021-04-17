@@ -1,42 +1,46 @@
 import { useColorMode } from "@chakra-ui/color-mode";
 import { AspectRatio, Box, Heading, Stack } from "@chakra-ui/layout";
-import React, { ReactElement, useCallback } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { isWithinInterval } from "date-fns";
 
 import { Reservation } from "models/Reservation";
 import { ReservationControls } from "components/ReservationControls";
 import useConfirmDelete from "utils/useConfirmDelete";
+import { useDeleteReservation } from "utils/networking";
 
 export interface ParkingSpotProps {
   reservations: Reservation[];
   id: number;
   isManager?: boolean;
+  isAvailable?: boolean;
+  onDelete?: () => void;
 }
 
 function ParkingSpot({
   reservations = [],
   id,
+  isAvailable,
+  onDelete,
 }: ParkingSpotProps): ReactElement {
   const { colorMode } = useColorMode();
-  const onDeleteConfirm = useCallback(() => {
-    console.log("delete");
-  }, []);
+  const reservation = reservations.find((r) =>
+    isWithinInterval(new Date(), {
+      start: new Date(r.from),
+      end: new Date(r.to),
+    })
+  );
+
+  const { trigger: onDeleteConfirm, response } = useDeleteReservation(
+    reservation?.id || 0
+  );
+
+  useEffect(() => {
+    response && response.success && onDelete && onDelete();
+  });
 
   const { ConfirmDelete, show: showDelete } = useConfirmDelete({
     onDelete: onDeleteConfirm,
   });
-
-  const isReserved = reservations.reduce(
-    (acc, r) =>
-      acc ||
-      isWithinInterval(new Date(), {
-        start: new Date(r.from),
-        end: new Date(r.to),
-      }),
-    false
-  );
-
-  const isOccupied = false && Math.random() > 0.9;
 
   const reservedColor = {
     dark: "orange.500",
@@ -58,10 +62,10 @@ function ParkingSpot({
       width="80px"
       ratio={2 / 3}
       backgroundColor={
-        isReserved
-          ? reservedColor[colorMode]
-          : isOccupied
+        isAvailable
           ? occupiedColor[colorMode]
+          : reservation
+          ? reservedColor[colorMode]
           : basicColor[colorMode]
       }
       color={colorMode === "dark" ? "gray.100" : "gray.700"}
@@ -69,7 +73,7 @@ function ParkingSpot({
     >
       <Stack>
         <Heading size="sm">P-{id}</Heading>
-        {isReserved || isOccupied ? (
+        {reservation ? (
           <ReservationControls onEdit={console.log} onDelete={showDelete} />
         ) : (
           <Box height="30px" />
@@ -80,4 +84,7 @@ function ParkingSpot({
   );
 }
 
-export default ParkingSpot;
+export default React.memo(
+  ParkingSpot,
+  (prev, next) => JSON.stringify(prev) === JSON.stringify(next)
+);

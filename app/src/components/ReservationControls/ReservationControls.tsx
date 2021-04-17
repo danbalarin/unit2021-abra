@@ -4,8 +4,8 @@ import { Box } from "@chakra-ui/layout";
 import React, { ReactElement } from "react";
 
 export interface ReservationControlsProps {
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 function ReservationControls({

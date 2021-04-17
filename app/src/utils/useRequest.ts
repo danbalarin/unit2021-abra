@@ -1,5 +1,5 @@
 import { Input, Options } from "ky";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   kyInstance,
   kyInstanceProprietary,
@@ -9,7 +9,8 @@ import {
 const useRequest = <T = any>(
   url: Input,
   options?: Options,
-  useProprietary?: boolean
+  useProprietary?: boolean,
+  manualTrigger?: boolean
 ) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error>();
@@ -18,9 +19,8 @@ const useRequest = <T = any>(
 
   const ky = useProprietary ? kyInstanceProprietary : kyInstance;
 
-  useEffect(() => {
-    if (JSON.stringify(optionsRef.current) !== JSON.stringify(options)) {
-      optionsRef.current = options;
+  const sendRequest = useCallback(
+    (options: Options) => {
       setLoading(true);
       ky(url, options)
         .json<T>()
@@ -28,10 +28,25 @@ const useRequest = <T = any>(
         .then(setResponse)
         .catch(setError)
         .finally(() => setLoading(false));
+    },
+    [url]
+  );
+
+  const trigger = (owOptions?: Options) => {
+    sendRequest({ ...options, retry: { limit: 1 }, ...owOptions });
+  };
+
+  useEffect(() => {
+    if (manualTrigger) {
+      return;
+    }
+    if (JSON.stringify(optionsRef.current) !== JSON.stringify(options)) {
+      optionsRef.current = options;
+      sendRequest({ ...options });
     }
   }, [url, options]);
 
-  return { loading, error, response };
+  return { loading, error, response, trigger };
 };
 
 export default useRequest;

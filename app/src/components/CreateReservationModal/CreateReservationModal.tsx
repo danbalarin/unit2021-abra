@@ -16,7 +16,9 @@ import {
   ModalOverlay,
 } from "@chakra-ui/modal";
 import { useFormik } from "formik";
-import React, { ReactElement, useImperativeHandle } from "react";
+import React, { ReactElement, useEffect, useImperativeHandle } from "react";
+import { Select } from "@chakra-ui/select";
+import { parseISO, addHours, addMinutes, formatISO } from "date-fns";
 
 import {
   CreateReservationPayload,
@@ -25,35 +27,54 @@ import {
 import { formatRFC } from "utils/date";
 import useUserStore from "state/user";
 import { User, UserRole } from "models/User";
-import { Select } from "@chakra-ui/select";
+import { usePutReservation } from "utils/networking";
 
 export interface CreateReservationModalProps {
   users?: User[];
+  onAdd?: () => void;
 }
 
 function CreateReservationModal(
-  { users }: CreateReservationModalProps,
+  { users, onAdd }: CreateReservationModalProps,
   ref: React.Ref<any>
 ): ReactElement {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const role = useUserStore((s) => s.role);
+  const { trigger, response } = usePutReservation();
+
   useImperativeHandle(ref, () => ({
     show: onOpen,
     hide: onClose,
   }));
 
+  useEffect(() => {
+    if (response && response.success) {
+      onAdd && onAdd();
+    }
+  }, [response]);
+
   const { handleSubmit, values, handleChange, touched, errors } = useFormik<
-    CreateReservationPayload & { isManager?: boolean }
+    CreateReservationPayload & { isManager?: boolean; isReceptionist?: boolean }
   >({
     initialValues: {
       isManager: role >= UserRole.MANAGER,
+      isReceptionist: role >= UserRole.RECEPCNI,
       from: formatRFC(new Date()),
       to: "08:00",
-      username: "",
+      userId: "",
     },
     validationSchema: createReservationValidationSchema,
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
+    onSubmit: ({ isManager, isReceptionist, ...values }) => {
+      isManager && isReceptionist;
+      const [hours, minutes] = values.to.split(":").map((t) => +t);
+      const to = formatISO(
+        addMinutes(addHours(parseISO(values.from), hours), minutes)
+      ).replace("+02:00", ""); // hotsif to remove timezone
+      const body = new URLSearchParams();
+      Object.entries({ ...values, to }).forEach(([k, v]) =>
+        body.append(k, v as any)
+      );
+      trigger({ body: JSON.stringify({ ...values, to }) });
     },
   });
 
@@ -88,23 +109,20 @@ function CreateReservationModal(
               <FormErrorMessage>{errors.to}</FormErrorMessage>
             </FormControl>
             {users && (
-              <FormControl
-                mt={4}
-                isInvalid={touched.username && !!errors.username}
-              >
+              <FormControl mt={4} isInvalid={touched.userId && !!errors.userId}>
                 <FormLabel>Uzivatel</FormLabel>
                 <Select
-                  name="username"
-                  value={values.username}
+                  name="userId"
+                  value={values.userId}
                   onChange={handleChange}
                 >
                   {users?.map((u) => (
-                    <option value={u.username} key={u.username}>
+                    <option value={u.id} key={u.id}>
                       {u.name} {u.lastname}
                     </option>
                   ))}
                 </Select>
-                <FormErrorMessage>{errors.username}</FormErrorMessage>
+                <FormErrorMessage>{errors.userId}</FormErrorMessage>
               </FormControl>
             )}
           </ModalBody>

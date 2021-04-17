@@ -1,7 +1,6 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
-import React, { ReactElement, useRef, useState } from "react";
+import React, { ReactElement, useMemo, useRef, useState } from "react";
 
-import { RESERVATION } from "models/Reservation";
 import { CTA } from "components/CTA";
 import { CreateReservationModal } from "components/CreateReservationModal";
 import { useGetAllReservations, useGetAllUsers } from "utils/networking";
@@ -14,19 +13,18 @@ function DashboardAdmin({}: DashboardAdminProps): ReactElement {
   const [isBig, setIsBig] = useState(false);
   const modalRef = useRef<any>();
   const { response: usersResponse } = useGetAllUsers();
-  const {
-    response: reservationsResponse,
-    error,
-    loading,
-  } = useGetAllReservations();
+  const { response: reservationsResponse, trigger } = useGetAllReservations();
 
-  const reservationsWithUsername =
-    reservationsResponse &&
-    usersResponse &&
-    reservationsResponse.data.map((r) => ({
-      ...r,
-      user: usersResponse.data?.find((u) => u.id === r.userId),
-    }));
+  const reservationsWithUser = useMemo(
+    () =>
+      reservationsResponse &&
+      usersResponse &&
+      reservationsResponse.data.map((r) => ({
+        ...r,
+        user: usersResponse.data?.find((u) => u.id === r.userId),
+      })),
+    [reservationsResponse, usersResponse]
+  );
 
   return (
     <>
@@ -48,10 +46,16 @@ function DashboardAdmin({}: DashboardAdminProps): ReactElement {
         </TabList>
         <TabPanels>
           <TabPanel width="100%">
-            <ReservationList reservations={reservationsWithUsername || []} />
+            <ReservationList
+              reservations={reservationsWithUser || []}
+              onDelete={() => trigger()}
+            />
           </TabPanel>
           <TabPanel width="100%">
-            <ParkingLot reservations={reservationsWithUsername || []} />
+            <ParkingLot
+              reservations={reservationsWithUser || []}
+              onDelete={() => trigger()}
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -59,6 +63,10 @@ function DashboardAdmin({}: DashboardAdminProps): ReactElement {
       <CreateReservationModal
         ref={modalRef}
         users={usersResponse ? usersResponse.data || [] : []}
+        onAdd={() => {
+          modalRef.current?.hide();
+          trigger();
+        }}
       />
     </>
   );
