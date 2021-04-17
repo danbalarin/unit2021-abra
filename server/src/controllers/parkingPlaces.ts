@@ -1,12 +1,12 @@
 import { Response, Request, NextFunction } from 'express';
-import ParkingPlacesBusinessInterface from '../business/ParkingPlacesInterface';
+import ParkingPlacesBusiness from '../business/ParkingPlaces';
 
 export default class ParkingPlacesController {
   
-  private bc: ParkingPlacesBusinessInterface;
+  private bc: ParkingPlacesBusiness;
 
   constructor(options: {
-    bc: ParkingPlacesBusinessInterface
+    bc: ParkingPlacesBusiness
   }) {
     Object.assign(this, options);
   }
